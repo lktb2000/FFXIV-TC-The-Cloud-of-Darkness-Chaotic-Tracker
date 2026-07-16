@@ -77,6 +77,12 @@
             --color-border-latest: #ef4444;
             --color-global-bg: #0b0f19;
             --color-frame-bg: #161b2b;
+            --btn-padding-y: 10px;
+        }
+
+        .ffxiv-btn {
+            padding-top: var(--btn-padding-y, 10px) !important;
+            padding-bottom: var(--btn-padding-y, 10px) !important;
         }
 
         .btn-normal-state {
@@ -152,10 +158,13 @@
                 <div class="text-center">
                     <h1 class="text-24pt font-bold tracking-tight text-white flex flex-wrap justify-center items-center gap-2">
                         滅暗黑之雲激鬥戰 
-                        <span class="text-14pt bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full font-medium">限時加倍紀錄器</span>
+                        <span class="text-14pt bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full font-medium">Ver 1.10</span>
                         <span id="cloud-sync-badge" class="text-14pt bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-medium">載入中...</span>
                     </h1>
                     <p class="text-14pt text-gray-400 mt-1 text-center">FFXIV Cloud of Darkness Spawn Realtime Sync Tracker</p>
+                    <button id="toggle-past-btn" class="mt-3 px-4 py-1.5 bg-gray-800 hover:bg-gray-750 text-gray-300 border border-gray-700 rounded-lg text-14pt transition">
+                        顯示過往時段
+                    </button>
                 </div>
             </div>
         </div>
@@ -199,15 +208,16 @@
             </div>
         </div>
 
+        <!-- Explanation Block with specific token styles -->
         <div class="bg-gray-950/60 border border-gray-800 rounded-xl p-6 text-14pt text-gray-400 text-center w-full max-w-4xl mx-auto flex flex-col items-center justify-center">
             <ul class="list-none space-y-2 inline-block text-center max-w-4xl w-full">
                 <li class="text-center">
                     <span class="text-amber-400 select-none">•</span>
-                    <span class="inline-block"><strong class="text-amber-400">即時同步模式</strong>：本工具已啟用雲端資料庫。多人同時打開此網頁時，點選數據將同步更新，不需手動整理。</span>
+                    <span><strong class="text-amber-400">即時同步模式</strong>：本工具已啟用雲端資料庫。多人同時打開此網頁時，點選數據將秒級同步更新，不需手動整理！</span>
                 </li>
                 <li class="text-center">
                     <span class="text-purple-400 select-none">•</span>
-                    <span><strong class="text-purple-400">加倍觸發時</strong>，全區同步進入。持續時間可能隨機為 <strong class="text-purple-400">3、6、9、12 小時</strong>。</span>
+                    <span><strong style="color: #7C3AED;">加倍觸發時</strong>，全區同步進入。持續時間可能隨機為 <strong class="text-purple-400">3、6、9、12 小時</strong>。</span>
                 </li>
                 <li class="text-center">
                     <span class="text-gray-200 select-none">•</span>
@@ -304,6 +314,15 @@
                         <span id="val-color-border-latest" class="font-mono text-gray-400 text-14pt">#EF4444</span>
                     </div>
                 </div>
+
+                <!-- 時段按鈕高度調整 -->
+                <div class="bg-gray-950/40 p-4 rounded-lg border border-gray-800/80 flex flex-col items-center justify-center gap-2 text-center md:col-span-2 lg:col-span-3">
+                    <label for="btn-height" class="text-14pt text-gray-300 font-medium text-center">時段按鈕高度調整 (垂直內距)</label>
+                    <div class="flex items-center justify-center gap-3 w-full max-w-md">
+                        <input type="range" id="btn-height" min="4" max="24" oninput="updateCustomColors()" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500">
+                        <span id="val-btn-height" class="font-mono text-gray-400 text-14pt min-w-[50px]">10px</span>
+                    </div>
+                </div>
             </div>
             
             <div class="mt-6 flex justify-center">
@@ -341,6 +360,7 @@
         let records = {};
         let isFirebaseReady = false;
         let firebaseDocRef = null;
+        let showPastPeriods = false; // 今日以前的時段預設為隱藏
 
         // 預測計算出的時段時間戳
         let earliestTimestamp = null;
@@ -365,8 +385,12 @@
                 const db = getFirestore(app);
                 const auth = getAuth(app);
 
-                // Sign in anonymously (Ensure "Anonymous" is enabled in Firebase Authentication console)
-                await signInAnonymously(auth);
+                // Sign in anonymously with robust fallback
+                try {
+                    await signInAnonymously(auth);
+                } catch (authError) {
+                    console.warn("Firebase Auth bypassed/not enabled. Connecting Firestore directly.", authError);
+                }
 
                 // Set Firestore document path
                 firebaseDocRef = doc(db, 'records', 'matrix_transposed');
@@ -470,6 +494,11 @@
             
             // 動態產生 thead 日期標題 (MM/DD (W) 格式)
             for (let i = -4; i <= 2; i++) {
+                // 如果未開啟顯示過往時段，且屬於今日以前 (i < 0)，則跳過不渲染
+                if (!showPastPeriods && i < 0) {
+                    continue;
+                }
+
                 const dayBaseline = new Date(currentBaseline);
                 dayBaseline.setDate(currentBaseline.getDate() + i);
                 dateList.push({
@@ -481,11 +510,15 @@
                 const date = String(dayBaseline.getDate()).padStart(2, '0');
                 const dayStr = daysOfWeek[dayBaseline.getDay()];
 
+                // 今日 (relativeIndex === 0) 文字顏色改為 #FBBF24
+                const isToday = (i === 0);
+                const textColorStyle = isToday ? 'style="color: #FBBF24; font-weight: bold;"' : '';
+
                 const th = document.createElement('th');
                 th.className = "py-4 px-3 border-b border-gray-800/80 min-w-[120px]";
                 th.innerHTML = `
                     <div class="flex flex-col items-center justify-center">
-                        <span class="font-semibold whitespace-nowrap text-14pt">${month}/${date} (${dayStr})</span>
+                        <span class="font-semibold whitespace-nowrap text-14pt" ${textColorStyle}>${month}/${date} (${dayStr})</span>
                     </div>
                 `;
                 theadTr.appendChild(th);
@@ -513,14 +546,16 @@
                     const ts = slotStart.getTime();
                     const isActive = !!records[ts];
                     const isCurrent = isCurrentActiveSlot(ts, now);
-                    const isEarliestPredicted = (ts === earliestTimestamp);
                     const isLatestPredicted = (ts === latestTimestamp);
+                    
+                    // 判斷是否處於最早可能與最晚保底預測區間之間（包含兩端）
+                    const isInPredictionRange = (earliestTimestamp !== null && latestTimestamp !== null && ts >= earliestTimestamp && ts <= latestTimestamp);
 
                     const td = document.createElement('td');
                     td.className = "p-2";
 
-                    // 按鈕自定義樣式
-                    let buttonClass = "w-full py-3 px-3 text-14pt rounded-lg font-mono font-medium flex flex-col items-center justify-center transition duration-150 border border-gray-800/40 shadow-sm whitespace-nowrap ";
+                    // 按鈕自定義樣式 (套用 ffxiv-btn class 支援高度自訂控制)
+                    let buttonClass = "ffxiv-btn w-full px-3 text-14pt rounded-lg font-mono font-medium flex flex-col items-center justify-center transition duration-150 border border-gray-800/40 shadow-sm whitespace-nowrap ";
                     
                     if (isActive) {
                         buttonClass += "btn-boosted-state";
@@ -528,12 +563,12 @@
                         buttonClass += "btn-normal-state";
                     }
 
-                    // 外框優先權：當前時段 > 最晚保底 > 最早可能
+                    // 外框優先權：當前時段 > 最晚保底 > 預測加倍區間
                     if (isCurrent) {
                         buttonClass += " current-slot-highlight";
                     } else if (isLatestPredicted) {
                         buttonClass += " latest-slot-highlight";
-                    } else if (isEarliestPredicted) {
+                    } else if (isInPredictionRange) {
                         buttonClass += " earliest-slot-highlight";
                     }
 
@@ -616,7 +651,7 @@
             latestPrediction.className = "text-18pt font-bold text-red-400 font-mono mt-1";
         }
 
-        // 更新頂部伺服器時鐘
+        // 更新頂部伺服器時鐘 (移除年份前綴)
         window.updateClock = function() {
             const timeDisplay = document.getElementById('current-time-display');
             if (timeDisplay) {
@@ -634,7 +669,8 @@
                 borderEarliest: '#10b981',
                 borderLatest: '#ef4444',
                 globalBg: '#0b0f19',
-                frameBg: '#161b2b'
+                frameBg: '#161b2b',
+                btnHeight: '10'
             };
 
             let colors = { ...defaultColors };
@@ -654,11 +690,12 @@
             document.getElementById('color-border-latest').value = colors.borderLatest || defaultColors.borderLatest;
             document.getElementById('color-global-bg').value = colors.globalBg || defaultColors.globalBg;
             document.getElementById('color-frame-bg').value = colors.frameBg || defaultColors.frameBg;
+            document.getElementById('btn-height').value = colors.btnHeight || defaultColors.btnHeight;
 
             applyColors(colors);
         }
 
-        // 即時套用調色盤色彩至 CSS 變數
+        // 即時套用調色盤與按鈕高度至 CSS 變數
         window.updateCustomColors = function() {
             const colors = {
                 normal: document.getElementById('color-normal').value,
@@ -667,7 +704,8 @@
                 borderEarliest: document.getElementById('color-border-earliest').value,
                 borderLatest: document.getElementById('color-border-latest').value,
                 globalBg: document.getElementById('color-global-bg').value,
-                frameBg: document.getElementById('color-frame-bg').value
+                frameBg: document.getElementById('color-frame-bg').value,
+                btnHeight: document.getElementById('btn-height').value
             };
 
             applyColors(colors);
@@ -683,6 +721,7 @@
             root.style.setProperty('--color-border-latest', colors.borderLatest);
             root.style.setProperty('--color-global-bg', colors.globalBg);
             root.style.setProperty('--color-frame-bg', colors.frameBg);
+            root.style.setProperty('--btn-padding-y', colors.btnHeight + 'px');
 
             document.getElementById('val-color-normal').textContent = colors.normal.toUpperCase();
             document.getElementById('val-color-boosted').textContent = colors.boosted.toUpperCase();
@@ -691,9 +730,10 @@
             document.getElementById('val-color-border-latest').textContent = colors.borderLatest.toUpperCase();
             document.getElementById('val-color-global-bg').textContent = colors.globalBg.toUpperCase();
             document.getElementById('val-color-frame-bg').textContent = colors.frameBg.toUpperCase();
+            document.getElementById('val-btn-height').textContent = colors.btnHeight + 'px';
         }
 
-        // 恢復預設色彩
+        // 恢復預設色彩與按鈕高度
         window.restoreDefaultColors = function() {
             const defaultColors = {
                 normal: '#1e293b',
@@ -702,7 +742,8 @@
                 borderEarliest: '#10b981',
                 borderLatest: '#ef4444',
                 globalBg: '#0b0f19',
-                frameBg: '#161b2b'
+                frameBg: '#161b2b',
+                btnHeight: '10'
             };
             document.getElementById('color-normal').value = defaultColors.normal;
             document.getElementById('color-boosted').value = defaultColors.boosted;
@@ -711,10 +752,11 @@
             document.getElementById('color-border-latest').value = defaultColors.borderLatest;
             document.getElementById('color-global-bg').value = defaultColors.globalBg;
             document.getElementById('color-frame-bg').value = defaultColors.frameBg;
+            document.getElementById('btn-height').value = defaultColors.btnHeight;
 
             applyColors(defaultColors);
             localStorage.setItem(STORAGE_COLOR_KEY, JSON.stringify(defaultColors));
-            showNotification("已恢復原廠 FFXIV 經典色系", "success");
+            showNotification("已恢復原廠 FFXIV 經典色系與按鈕高度", "success");
         }
 
         window.showNotification = function(text, type = "success") {
@@ -752,6 +794,15 @@
         initColorCustomizer();
         initFirebaseAndSync();
         
+        const togglePastBtn = document.getElementById('toggle-past-btn');
+        if (togglePastBtn) {
+            togglePastBtn.onclick = () => {
+                showPastPeriods = !showPastPeriods;
+                togglePastBtn.textContent = showPastPeriods ? "隱藏過往時段" : "顯示過往時段";
+                renderTimeline();
+            };
+        }
+
         // 每秒更新系統時間時鐘
         setInterval(updateClock, 1000);
 
