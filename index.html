@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>滅暗黑之雲 - 限時加倍與 CD 計算器 (雲端同步版)</title>
+    <!-- Tailwind CSS (Official Play CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <style>
+        html {
+            font-size: 18.66px !important; /* 14pt */
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--color-global-bg, #0b0f19);
+            color: #f3f4f6;
+            transition: background-color 0.2s ease;
+        }
+
+        body {
+            font-size: 1rem !important; /* 14pt */
+            background-color: var(--color-global-bg, #0b0f19);
+            transition: background-color 0.2s ease;
+        }
+
+        /* 標題與標籤層級設定 */
+        .text-14pt { font-size: 1rem !important; } /* 14pt */
+        .text-16pt { font-size: 1.14rem !important; } /* 16pt */
+        .text-18pt { font-size: 1.28rem !important; } /* 18pt */
+        .text-20pt { font-size: 1.43rem !important; } /* 20pt */
+        .text-24pt { font-size: 1.71rem !important; } /* 24pt */
+
+        /* 自定義滾動條，確保橫向滑動時美觀 */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0f172a;
+            border-radius: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 6px;
+            border: 2px solid #0f172a;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        .ffxiv-frame {
+            filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.75));
+            background: radial-gradient(circle at center, var(--color-frame-bg, #161b2b) 0%, #070911 100%);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid rgba(191, 161, 95, 0.85); /* FFXIV 經典金線 */
+            box-shadow: 
+                inset 0 0 0 1px rgba(0, 0, 0, 0.5),
+                inset 0 0 20px rgba(0, 0, 0, 0.9), 
+                0 10px 30px rgba(0, 0, 0, 0.85);
+            padding: 24px;
+            position: relative;
+            transition: background 0.2s ease;
+            width: fit-content;
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* CSS 變數動態對應調色器 */
+        :root {
+            --color-btn-normal: #1e293b;
+            --color-btn-boosted: #7c3aed;
+            --color-border-current: #fbbf24;
+            --color-border-earliest: #10b981;
+            --color-border-latest: #ef4444;
+            --color-global-bg: #0b0f19;
+            --color-frame-bg: #161b2b;
+        }
+
+        .btn-normal-state {
+            background-color: var(--color-btn-normal);
+            color: #cbd5e1;
+            transition: all 0.2s ease;
+        }
+        .btn-normal-state:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        .btn-boosted-state {
+            background-color: var(--color-btn-boosted);
+            color: #ffffff;
+            font-weight: bold;
+            box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.2);
+            transition: all 0.2s ease;
+        }
+        .btn-boosted-state:hover {
+            opacity: 0.95;
+            transform: scale(1.02);
+        }
+
+        /* 目前所在時段外框樣式 */
+        .current-slot-highlight {
+            outline: 5px solid var(--color-border-current) !important;
+            outline-offset: -3px;
+            z-index: 20;
+            position: relative;
+            animation: pulse-glow-current 2s infinite ease-in-out;
+        }
+
+        /* 最早加倍可能時段外框樣式 */
+        .earliest-slot-highlight {
+            outline: 5px solid var(--color-border-earliest) !important;
+            outline-offset: -3px;
+            z-index: 18;
+            position: relative;
+            animation: pulse-glow-earliest 2s infinite ease-in-out;
+        }
+
+        /* 最晚保底時段外框樣式 */
+        .latest-slot-highlight {
+            outline: 5px solid var(--color-border-latest) !important;
+            outline-offset: -3px;
+            z-index: 18;
+            position: relative;
+            animation: pulse-glow-latest 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow-current {
+            0%, 100% { outline-color: var(--color-border-current); filter: brightness(1); }
+            50% { outline-color: rgba(255, 255, 255, 0.9); filter: brightness(1.2); }
+        }
+
+        @keyframes pulse-glow-earliest {
+            0%, 100% { outline-color: var(--color-border-earliest); filter: brightness(1); }
+            50% { outline-color: rgba(255, 255, 255, 0.9); filter: brightness(1.2); }
+        }
+
+        @keyframes pulse-glow-latest {
+            0%, 100% { outline-color: var(--color-border-latest); filter: brightness(1); }
+            50% { outline-color: rgba(255, 255, 255, 0.9); filter: brightness(1.2); }
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-12 text-center flex flex-col justify-start items-center">
+
+    <header class="w-full border-b border-gray-800 bg-gray-950/80 backdrop-blur sticky top-0 z-50 px-4 py-6 sm:px-6 text-center">
+        <div class="max-w-7xl mx-auto flex flex-col items-center justify-center gap-3">
+            <div class="flex flex-col items-center justify-center gap-2">
+                <div class="text-center">
+                    <h1 class="text-24pt font-bold tracking-tight text-white flex flex-wrap justify-center items-center gap-2">
+                        滅暗黑之雲激鬥戰 
+                        <span class="text-14pt bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full font-medium">限時加倍紀錄器</span>
+                        <span id="cloud-sync-badge" class="text-14pt bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-medium">載入中...</span>
+                    </h1>
+                    <p class="text-14pt text-gray-400 mt-1 text-center">FFXIV Cloud of Darkness Spawn Realtime Sync Tracker</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 mt-6 flex flex-col justify-start items-center gap-6">
+        
+        <!-- Grid: Ensured to display horizontally (cols-3) on desktop/tablets and stacked on mobile -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-7xl mx-auto mb-2 text-center justify-center">
+            <!-- Server Time Card -->
+            <div class="bg-gray-900/60 border border-gray-800 rounded-xl p-5 flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
+                <div class="p-3 bg-amber-500/10 rounded-lg text-amber-400 flex items-center justify-center">
+                    <span class="material-icons-round text-4xl">schedule</span>
+                </div>
+                <div class="text-center sm:text-left flex flex-col items-center sm:items-start justify-center">
+                    <p class="text-14pt text-gray-400 font-medium text-center sm:text-left">當前伺服器時間</p>
+                    <p id="current-time-display" class="text-18pt font-bold font-mono text-amber-400 mt-1 text-center sm:text-left">Loading...</p>
+                </div>
+            </div>
+
+            <!-- Earliest Spawn Predictor (24h CD) -->
+            <div class="bg-gray-900/60 border border-gray-800 rounded-xl p-5 flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
+                <div class="p-3 bg-emerald-500/10 rounded-lg text-emerald-400 flex items-center justify-center">
+                    <span class="material-icons-round text-4xl">timer</span>
+                </div>
+                <div class="text-center sm:text-left flex flex-col items-center sm:items-start justify-center">
+                    <p class="text-14pt text-gray-400 font-medium text-center sm:text-left">下次最早加倍時間 (24h CD)</p>
+                    <p id="earliest-prediction" class="text-18pt font-bold text-emerald-400 font-mono mt-1 text-center sm:text-left">--:--</p>
+                </div>
+            </div>
+
+            <!-- Hard Limit Spawn Predictor (48h Guaranteed) -->
+            <div class="bg-gray-900/60 border border-gray-800 rounded-xl p-5 flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
+                <div class="p-3 bg-red-500/10 rounded-lg text-red-400 flex items-center justify-center">
+                    <span class="material-icons-round text-4xl">gavel</span>
+                </div>
+                <div class="text-center sm:text-left flex flex-col items-center sm:items-start justify-center">
+                    <p class="text-14pt text-gray-400 font-medium text-center sm:text-left">最晚強制加倍時間 (48h)</p>
+                    <p id="latest-prediction" class="text-18pt font-bold text-red-400 font-mono mt-1 text-center sm:text-left">--:--</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gray-950/60 border border-gray-800 rounded-xl p-6 text-14pt text-gray-400 text-center w-full max-w-4xl mx-auto flex flex-col items-center justify-center">
+            <ul class="list-none space-y-2 inline-block text-center max-w-4xl w-full">
+                <li class="text-center">
+                    <span class="text-amber-400 select-none">•</span>
+                    <span class="inline-block"><strong class="text-amber-400">即時同步模式</strong>：本工具已啟用雲端資料庫。多人同時打開此網頁時，點選數據將同步更新，不需手動整理。</span>
+                </li>
+                <li class="text-center">
+                    <span class="text-purple-400 select-none">•</span>
+                    <span><strong class="text-purple-400">加倍觸發時</strong>，全區同步進入。持續時間可能隨機為 <strong class="text-purple-400">3、6、9、12 小時</strong>。</span>
+                </li>
+                <li class="text-center">
+                    <span class="text-gray-200 select-none">•</span>
+                    <span><strong style="color: #10B981;">24小時冷卻限制</strong>：每次加倍<strong class="text-gray-200">開始</strong>算起 24 小時內，必定不會再度觸發。</span>
+                </li>
+                <li class="text-center">
+                    <span class="text-red-400 select-none">•</span>
+                    <span><strong style="color: #EF4444;">48小時強制保底</strong>：距離上次加倍開始經過 48 小時若未觸發，系統將<strong class="text-red-400">強制啟動</strong>加倍。</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="ffxiv-frame w-fit max-w-full mx-auto">
+            <!-- Scrollable Table -->
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-auto text-center border-collapse mx-auto">
+                    <thead>
+                        <tr id="matrix-thead-tr" class="bg-gray-900/50 border-b border-gray-800 text-14pt font-semibold text-gray-300">
+                            <!-- 日期標題由 JavaScript 動態生成 -->
+                        </tr>
+                    </thead>
+                    <tbody id="matrix-tbody" class="divide-y divide-gray-900/60 text-14pt">
+                        <!-- 由 Javascript 依 8 個縱向時間段動態建構 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <section class="bg-gray-900/50 border border-gray-800 rounded-xl p-6 w-full max-w-5xl mx-auto text-center flex flex-col justify-start items-center">
+            <h3 class="text-18pt font-bold text-gray-200 flex items-center justify-center gap-2 mb-4 text-center">
+                <span class="material-icons-round text-20pt text-amber-500">palette</span>
+                介面色彩調色器 (自訂主題)
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full text-center justify-center items-center">
+                <!-- 全域背景底色 -->
+                <div class="bg-gray-950/40 p-4 rounded-lg border border-gray-800/80 flex flex-col items-center justify-center gap-2 text-center">
+                    <label for="color-global-bg" class="text-14pt text-gray-300 font-medium text-center">全域背景底色</label>
+                    <div class="flex items-center justify-center gap-3">
+                        <input type="color" id="color-global-bg" oninput="updateCustomColors()" class="w-12 h-10 border-0 rounded cursor-pointer bg-transparent">
+                        <span id="val-color-global-bg" class="font-mono text-gray-400 text-14pt">#0B0F19</span>
+                    </div>
+                </div>
+
+                <!-- 按鈕區域背景底色 -->
+                <div class="bg-gray-950/40 p-4 rounded-lg border border-gray-800/80 flex flex-col items-center justify-center gap-2 text-center">
+                    <label for="color-frame-bg" class="text-14pt text-gray-300 font-medium text-center">按鈕區域背景底色</label>
+                    <div class="flex items-center justify-center gap-3">
+                        <input type="color" id="color-frame-bg" oninput="updateCustomColors()" class="w-12 h-10 border-0 rounded cursor-pointer bg-transparent">
+                        <span id="val-color-frame-bg" class="font-mono text-gray-400 text-14pt">#161B2B</span>
+                    </div>
+                </div>
+
+                <!-- 常態按鈕顏色 -->
+                <div class="bg-gray-950/40 p-4 rounded-lg border border-gray-800/80 flex flex-col items-center justify-center gap-2 text-center">
+                    <label for="color-normal" class="text-14pt text-gray-300 font-medium text-center">常態狀態下按鈕的底色</label>
+                    <div class="flex items-center justify-center gap-3">
+                        <input type="color" id="color-normal" oninput="updateCustomColors()" class="w-12 h-10 border-0 rounded cursor-pointer bg-transparent">
+                        <span id="val-color-normal" class="font-mono text-gray-400 text-14pt">#1E293B</span>
+                    </div>
+                </div>
+
+                <!-- 加倍按鈕顏色 -->
+                <div class="bg-gray-950/40 p-4 rounded-lg border border-gray-800/80 flex flex-col items-center justify-center gap-2 text-center">
+                    <label for="color-boosted" class="text-14pt text-gray-300 font-medium text-center">加倍時的按鈕底色</label>
+                    <div class="flex items-center justify-center gap-3">
+                        <input type="color" id="color-boosted" oninput="updateCustomColors()" class="w-12 h-10 border-0 rounded cursor-pointer bg-transparent">
+                        <span id="val-color-boosted" class="font-mono text-gray-400 text-14pt">#7C3AED</span>
+                    </div>
+                </div>
+
+                <!-- 目前時段外框顏色 -->
+                <div class="bg-gray-950/40 p-4 rounded-lg border border-gray-800/80 flex flex-col items-center justify-center gap-2 text-center">
+                    <label for="color-border-current" class="text-14pt text-gray-300 font-medium text-center">目前所在時間段的外框色</label>
+                    <div class="flex items-center justify-center gap-3">
+                        <input type="color" id="color-border-current" oninput="updateCustomColors()" class="w-12 h-10 border-0 rounded cursor-pointer bg-transparent">
+                        <span id="val-color-border-current" class="font-mono text-gray-400 text-14pt">#FBBF24</span>
+                    </div>
+                </div>
+
+                <!-- 最早加倍時段外框顏色 -->
+                <div class="bg-gray-950/40 p-4 rounded-lg border border-gray-800/80 flex flex-col items-center justify-center gap-2 text-center">
+                    <label for="color-border-earliest" class="text-14pt text-gray-300 font-medium text-center">最早加倍時段的外框色</label>
+                    <div class="flex items-center justify-center gap-3">
+                        <input type="color" id="color-border-earliest" oninput="updateCustomColors()" class="w-12 h-10 border-0 rounded cursor-pointer bg-transparent">
+                        <span id="val-color-border-earliest" class="font-mono text-gray-400 text-14pt">#10B981</span>
+                    </div>
+                </div>
+
+                <!-- 最晚保底時段外框顏色 -->
+                <div class="bg-gray-950/40 p-4 rounded-lg border border-gray-800/80 flex flex-col items-center justify-center gap-2 text-center md:col-span-2 lg:col-span-3">
+                    <label for="color-border-latest" class="text-14pt text-gray-300 font-medium text-center">最晚保底時段的外框色</label>
+                    <div class="flex items-center justify-center gap-3">
+                        <input type="color" id="color-border-latest" oninput="updateCustomColors()" class="w-12 h-10 border-0 rounded cursor-pointer bg-transparent">
+                        <span id="val-color-border-latest" class="font-mono text-gray-400 text-14pt">#EF4444</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 flex justify-center">
+                <button onclick="restoreDefaultColors()" class="flex items-center gap-1 bg-gray-800 hover:bg-gray-750 border border-gray-700 px-4 py-2 rounded-lg text-14pt text-gray-300 transition">
+                    <span class="material-icons-round text-16pt">restore</span>
+                    恢復預設色彩
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const STORAGE_KEY = 'wh_dark_cloud_v2_records_转置';
+        const STORAGE_COLOR_KEY = 'wh_dark_cloud_v2_colors_转置';
+        
+        // 八組縱向 3 小時時段，首格為 05:00 ~ 07:59
+        const SLOT_DEFINITIONS = [
+            { label: '05:00~07:59', startHour: 5, endHour: 8, dayOffset: 0 },
+            { label: '08:00~10:59', startHour: 8, endHour: 11, dayOffset: 0 },
+            { label: '11:00~13:59', startHour: 11, endHour: 14, dayOffset: 0 },
+            { label: '14:00~16:59', startHour: 14, endHour: 17, dayOffset: 0 },
+            { label: '17:00~19:59', startHour: 17, endHour: 20, dayOffset: 0 },
+            { label: '20:00~22:59', startHour: 20, endHour: 23, dayOffset: 0 },
+            { label: '23:00~01:59', startHour: 23, endHour: 2, dayOffset: 0 }, // 跨日但屬於同一個遊戲日
+            { label: '02:00~04:59', startHour: 2, endHour: 5, dayOffset: 1 }   // 隔日日曆，但為該遊戲日最後一個時段
+        ];
+
+        let records = {};
+        let isFirebaseReady = false;
+        let firebaseDocRef = null;
+
+        // 預測計算出的時段時間戳
+        let earliestTimestamp = null;
+        let latestTimestamp = null;
+
+        async function initFirebaseAndSync() {
+            const badge = document.getElementById('cloud-sync-badge');
+            
+            if (typeof __firebase_config === 'undefined') {
+                console.warn("Firebase config is not available. Falling back to LocalStorage.");
+                badge.className = "text-14pt bg-gray-800 text-gray-400 border border-gray-700 px-2 py-0.5 rounded-full font-medium";
+                badge.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-gray-500 mr-1.5 animate-pulse"></span>本地暫存`;
+                initLocalApp();
+                return;
+            }
+
+            try {
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                const db = getFirestore(app);
+                const auth = getAuth(app);
+
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'dark-cloud-spawn-tracker-v2';
+                firebaseDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'records', 'matrix_transposed');
+                
+                // 訂閱雲端資料即時變更監聽
+                onSnapshot(firebaseDocRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        records = docSnap.data().slots || {};
+                    } else {
+                        records = {};
+                    }
+                    updateCalculations();
+                    renderTimeline();
+                }, (error) => {
+                    console.error("Firestore loading error: ", error);
+                    showNotification("同步連線失敗，自動切換至備份模式", "error");
+                });
+
+                isFirebaseReady = true;
+                badge.className = "text-14pt bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-medium";
+                badge.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-1.5 animate-ping"></span>雲端同步`;
+                showNotification("已成功與雲端大廳同步！", "success");
+
+            } catch (err) {
+                console.error("Firebase startup failed: ", err);
+                badge.className = "text-14pt bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-medium";
+                badge.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1.5 animate-pulse"></span>離線模式`;
+                initLocalApp();
+            }
+        }
+
+        // 本地模式備份初始化
+        function initLocalApp() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                records = saved ? JSON.parse(saved) : {};
+            } catch (e) {
+                records = {};
+            }
+            updateCalculations();
+            renderTimeline();
+        }
+
+        // 輔助函式：取得指定時間戳的遊戲日基準 (以早上 05:00 為換日點)
+        function getGameDayBaseline(timestamp) {
+            const d = new Date(timestamp);
+            if (d.getHours() < 5) {
+                d.setDate(d.getDate() - 1); 
+            }
+            d.setHours(5, 0, 0, 0);
+            return d;
+        }
+
+        // 輔助函式：判斷某個時段是否包含目前系統時間
+        function isCurrentActiveSlot(slotStartTimestamp, nowTimestamp) {
+            const slotStart = new Date(slotStartTimestamp);
+            const slotEnd = new Date(slotStartTimestamp + 3 * 60 * 60 * 1000);
+            return nowTimestamp >= slotStart.getTime() && nowTimestamp < slotEnd.getTime();
+        }
+
+        async function toggleSlot(timestamp) {
+            const newRecords = { ...records };
+            if (newRecords[timestamp]) {
+                delete newRecords[timestamp];
+            } else {
+                newRecords[timestamp] = true;
+            }
+
+            records = newRecords;
+
+            if (isFirebaseReady && firebaseDocRef) {
+                try {
+                    await setDoc(firebaseDocRef, { slots: records });
+                } catch (e) {
+                    console.error("Firebase sync save failed:", e);
+                    showNotification("同步儲存失敗", "error");
+                }
+            } else {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+            }
+
+            updateCalculations();
+            renderTimeline();
+        }
+
+        window.renderTimeline = function() {
+            const theadTr = document.getElementById('matrix-thead-tr');
+            const tbody = document.getElementById('matrix-tbody');
+            if (!theadTr || !tbody) return;
+
+            // 清空舊內容
+            theadTr.innerHTML = '';
+            tbody.innerHTML = '';
+
+            const now = Date.now();
+            const currentBaseline = getGameDayBaseline(now);
+
+            // 建立 7 個日期行頭資料 (自今天起算 -4 天至 +2 天)
+            const dateList = [];
+            const daysOfWeek = ["日", "一", "二", "三", "四", "五", "六"];
+            
+            // 動態產生 thead 日期標題 (MM/DD (W) 格式)
+            for (let i = -4; i <= 2; i++) {
+                const dayBaseline = new Date(currentBaseline);
+                dayBaseline.setDate(currentBaseline.getDate() + i);
+                dateList.push({
+                    baseline: dayBaseline,
+                    relativeIndex: i
+                });
+
+                const month = String(dayBaseline.getMonth() + 1).padStart(2, '0');
+                const date = String(dayBaseline.getDate()).padStart(2, '0');
+                const dayStr = daysOfWeek[dayBaseline.getDay()];
+
+                const th = document.createElement('th');
+                th.className = "py-4 px-3 border-b border-gray-800/80 min-w-[120px]";
+                th.innerHTML = `
+                    <div class="flex flex-col items-center justify-center">
+                        <span class="font-semibold whitespace-nowrap text-14pt">${month}/${date} (${dayStr})</span>
+                    </div>
+                `;
+                theadTr.appendChild(th);
+            }
+
+            // 縱向逐一渲染 8 個時段列 (Row)
+            SLOT_DEFINITIONS.forEach((slot, slotIdx) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-900/20 transition duration-150";
+
+                // 橫向渲染各個日期的按鈕 (Column)
+                dateList.forEach(dayItem => {
+                    const slotStart = new Date(dayItem.baseline);
+                    
+                    // 根據 offset 計算每個格子正確的絕對時間戳
+                    if (slotIdx === 6 && slot.startHour === 23) {
+                        // 當天 23:00 開始
+                    } else if (slot.dayOffset > 0) {
+                        slotStart.setDate(dayItem.baseline.getDate() + slot.dayOffset);
+                    } else if (slot.startHour < 5) {
+                        slotStart.setDate(dayItem.baseline.getDate() + 1);
+                    }
+                    slotStart.setHours(slot.startHour, 0, 0, 0);
+
+                    const ts = slotStart.getTime();
+                    const isActive = !!records[ts];
+                    const isCurrent = isCurrentActiveSlot(ts, now);
+                    const isEarliestPredicted = (ts === earliestTimestamp);
+                    const isLatestPredicted = (ts === latestTimestamp);
+
+                    const td = document.createElement('td');
+                    td.className = "p-2";
+
+                    // 按鈕自定義樣式
+                    let buttonClass = "w-full py-3 px-3 text-14pt rounded-lg font-mono font-medium flex flex-col items-center justify-center transition duration-150 border border-gray-800/40 shadow-sm whitespace-nowrap ";
+                    
+                    if (isActive) {
+                        buttonClass += "btn-boosted-state";
+                    } else {
+                        buttonClass += "btn-normal-state";
+                    }
+
+                    // 外框優先權：當前時段 > 最晚保底 > 最早可能
+                    if (isCurrent) {
+                        buttonClass += " current-slot-highlight";
+                    } else if (isLatestPredicted) {
+                        buttonClass += " latest-slot-highlight";
+                    } else if (isEarliestPredicted) {
+                        buttonClass += " earliest-slot-highlight";
+                    }
+
+                    td.innerHTML = `
+                        <button id="btn-ts-${ts}" class="${buttonClass}" title="點擊切換加倍紀錄">
+                            <span>${slot.label}</span>
+                        </button>
+                    `;
+                    
+                    tr.appendChild(td);
+                });
+
+                tbody.appendChild(tr);
+
+                // 在渲染完後重新綁定事件
+                dateList.forEach(dayItem => {
+                    const slotStart = new Date(dayItem.baseline);
+                    if (slotIdx === 6 && slot.startHour === 23) {}
+                    else if (slot.dayOffset > 0) { slotStart.setDate(dayItem.baseline.getDate() + slot.dayOffset); }
+                    else if (slot.startHour < 5) { slotStart.setDate(dayItem.baseline.getDate() + 1); }
+                    slotStart.setHours(slot.startHour, 0, 0, 0);
+                    const ts = slotStart.getTime();
+                    const btn = document.getElementById(`btn-ts-${ts}`);
+                    if (btn) {
+                        btn.onclick = () => toggleSlot(ts);
+                    }
+                });
+            });
+        }
+
+        window.updateCalculations = function() {
+            const activeTimestamps = Object.keys(records)
+                .filter(k => records[k])
+                .map(k => parseInt(k));
+
+            const earliestPrediction = document.getElementById('earliest-prediction');
+            const latestPrediction = document.getElementById('latest-prediction');
+
+            if (!earliestPrediction || !latestPrediction) return;
+
+            const formatTime = (d) => {
+                const days = ["日", "一", "二", "三", "四", "五", "六"];
+                return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')} (${days[d.getDay()]}) ${String(d.getHours()).padStart(2, '0')}:00`;
+            };
+
+            const now = Date.now();
+
+            if (activeTimestamps.length === 0) {
+                earliestPrediction.textContent = "未設定歷史紀錄";
+                latestPrediction.textContent = "未設定歷史紀錄";
+                earliestPrediction.className = "text-14pt text-gray-500 mt-1";
+                latestPrediction.className = "text-14pt text-gray-500 mt-1";
+                earliestTimestamp = null;
+                latestTimestamp = null;
+                return;
+            }
+
+            // 尋找最近一次的加倍最晚時間戳
+            const latestTs = Math.max(...activeTimestamps);
+            
+            // 往前找出最後一波連續加倍的「最起始」時間戳
+            let latestStart = latestTs;
+            const step = 3 * 60 * 60 * 1000; // 3 小時一檔
+            while (activeTimestamps.includes(latestStart - step)) {
+                latestStart -= step;
+            }
+
+            // CD 冷卻時間 24h
+            const cdEnd = new Date(latestStart + 24 * 60 * 60 * 1000);
+            // 保底強制時間 48h
+            const limitEnd = new Date(latestStart + 48 * 60 * 60 * 1000);
+
+            earliestTimestamp = cdEnd.getTime();
+            latestTimestamp = limitEnd.getTime();
+
+            earliestPrediction.textContent = formatTime(cdEnd);
+            earliestPrediction.className = "text-18pt font-bold text-emerald-400 font-mono mt-1";
+
+            latestPrediction.textContent = formatTime(limitEnd);
+            latestPrediction.className = "text-18pt font-bold text-red-400 font-mono mt-1";
+        }
+
+        // 更新頂部伺服器時鐘
+        window.updateClock = function() {
+            const timeDisplay = document.getElementById('current-time-display');
+            if (timeDisplay) {
+                const now = new Date();
+                const days = ["日", "一", "二", "三", "四", "五", "六"];
+                timeDisplay.textContent = `${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} (${days[now.getDay()]}) ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            }
+        }
+
+        window.initColorCustomizer = function() {
+            const defaultColors = {
+                normal: '#1e293b',
+                boosted: '#7c3aed',
+                border: '#fbbf24',
+                borderEarliest: '#10b981',
+                borderLatest: '#ef4444',
+                globalBg: '#0b0f19',
+                frameBg: '#161b2b'
+            };
+
+            let colors = { ...defaultColors };
+            try {
+                const saved = localStorage.getItem(STORAGE_COLOR_KEY);
+                if (saved) {
+                    colors = JSON.parse(saved);
+                }
+            } catch (e) {
+                colors = { ...defaultColors };
+            }
+
+            document.getElementById('color-normal').value = colors.normal || defaultColors.normal;
+            document.getElementById('color-boosted').value = colors.boosted || defaultColors.boosted;
+            document.getElementById('color-border-current').value = colors.border || defaultColors.border;
+            document.getElementById('color-border-earliest').value = colors.borderEarliest || defaultColors.borderEarliest;
+            document.getElementById('color-border-latest').value = colors.borderLatest || defaultColors.borderLatest;
+            document.getElementById('color-global-bg').value = colors.globalBg || defaultColors.globalBg;
+            document.getElementById('color-frame-bg').value = colors.frameBg || defaultColors.frameBg;
+
+            applyColors(colors);
+        }
+
+        // 即時套用調色盤色彩至 CSS 變數
+        window.updateCustomColors = function() {
+            const colors = {
+                normal: document.getElementById('color-normal').value,
+                boosted: document.getElementById('color-boosted').value,
+                border: document.getElementById('color-border-current').value,
+                borderEarliest: document.getElementById('color-border-earliest').value,
+                borderLatest: document.getElementById('color-border-latest').value,
+                globalBg: document.getElementById('color-global-bg').value,
+                frameBg: document.getElementById('color-frame-bg').value
+            };
+
+            applyColors(colors);
+            localStorage.setItem(STORAGE_COLOR_KEY, JSON.stringify(colors));
+        }
+
+        window.applyColors = function(colors) {
+            const root = document.documentElement;
+            root.style.setProperty('--color-btn-normal', colors.normal);
+            root.style.setProperty('--color-btn-boosted', colors.boosted);
+            root.style.setProperty('--color-border-current', colors.border);
+            root.style.setProperty('--color-border-earliest', colors.borderEarliest);
+            root.style.setProperty('--color-border-latest', colors.borderLatest);
+            root.style.setProperty('--color-global-bg', colors.globalBg);
+            root.style.setProperty('--color-frame-bg', colors.frameBg);
+
+            document.getElementById('val-color-normal').textContent = colors.normal.toUpperCase();
+            document.getElementById('val-color-boosted').textContent = colors.boosted.toUpperCase();
+            document.getElementById('val-color-border-current').textContent = colors.border.toUpperCase();
+            document.getElementById('val-color-border-earliest').textContent = colors.borderEarliest.toUpperCase();
+            document.getElementById('val-color-border-latest').textContent = colors.borderLatest.toUpperCase();
+            document.getElementById('val-color-global-bg').textContent = colors.globalBg.toUpperCase();
+            document.getElementById('val-color-frame-bg').textContent = colors.frameBg.toUpperCase();
+        }
+
+        // 恢復預設色彩
+        window.restoreDefaultColors = function() {
+            const defaultColors = {
+                normal: '#1e293b',
+                boosted: '#7c3aed',
+                border: '#fbbf24',
+                borderEarliest: '#10b981',
+                borderLatest: '#ef4444',
+                globalBg: '#0b0f19',
+                frameBg: '#161b2b'
+            };
+            document.getElementById('color-normal').value = defaultColors.normal;
+            document.getElementById('color-boosted').value = defaultColors.boosted;
+            document.getElementById('color-border-current').value = defaultColors.border;
+            document.getElementById('color-border-earliest').value = defaultColors.borderEarliest;
+            document.getElementById('color-border-latest').value = defaultColors.borderLatest;
+            document.getElementById('color-global-bg').value = defaultColors.globalBg;
+            document.getElementById('color-frame-bg').value = defaultColors.frameBg;
+
+            applyColors(defaultColors);
+            localStorage.setItem(STORAGE_COLOR_KEY, JSON.stringify(defaultColors));
+            showNotification("已恢復原廠 FFXIV 經典色系", "success");
+        }
+
+        window.showNotification = function(text, type = "success") {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            const bgClass = type === "success" ? "bg-emerald-950/90 border-emerald-500/50 text-emerald-200" : "bg-red-950/90 border-red-500/50 text-red-200";
+            const icon = type === "success" ? "check_circle" : "error_outline";
+
+            toast.className = `flex items-center gap-2.5 px-4.5 py-3 border rounded-xl shadow-xl backdrop-blur-sm transition-all duration-300 translate-y-2 opacity-0 ${bgClass}`;
+            toast.innerHTML = `
+                <span class="material-icons-round text-18pt">${icon}</span>
+                <span class="text-14pt font-medium">${text}</span>
+            `;
+
+            container.appendChild(toast);
+
+            // 動態劃入效果
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 50);
+
+            // 自動淡出銷毀
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 4000);
+        }
+
+        // 啟動與初始化程序
+        updateClock();
+        initColorCustomizer();
+        initFirebaseAndSync();
+        
+        // 每秒更新系統時間時鐘
+        setInterval(updateClock, 1000);
+
+        // 每5分鐘自動重新計算並更新高亮狀態與計算
+        setInterval(() => {
+            updateCalculations();
+            renderTimeline();
+        }, 5 * 60 * 1000);
+
+    </script>
+</body>
+</html>
