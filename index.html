@@ -320,7 +320,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const STORAGE_KEY = 'wh_dark_cloud_v2_records_转置';
@@ -346,33 +346,32 @@
         let earliestTimestamp = null;
         let latestTimestamp = null;
 
+        const firebaseConfig = {
+            apiKey: "AIzaSyCrYpO-BVuCAcykMO8VvCkgvyWbSWj0i_s",
+            authDomain: "tc-cloud-of-darkness-tracker.firebaseapp.com",
+            projectId: "tc-cloud-of-darkness-tracker",
+            storageBucket: "tc-cloud-of-darkness-tracker.firebasestorage.app",
+            messagingSenderId: "583927448044",
+            appId: "1:583927448044:web:a2a62304a3946578bbc0c9",
+            measurementId: "G-HN38PQ3WT5"
+        };
+
         async function initFirebaseAndSync() {
             const badge = document.getElementById('cloud-sync-badge');
             
-            if (typeof __firebase_config === 'undefined') {
-                console.warn("Firebase config is not available. Falling back to LocalStorage.");
-                badge.className = "text-14pt bg-gray-800 text-gray-400 border border-gray-700 px-2 py-0.5 rounded-full font-medium";
-                badge.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-gray-500 mr-1.5 animate-pulse"></span>本地暫存`;
-                initLocalApp();
-                return;
-            }
-
             try {
-                const firebaseConfig = JSON.parse(__firebase_config);
+                // Initialize Firebase App
                 const app = initializeApp(firebaseConfig);
                 const db = getFirestore(app);
                 const auth = getAuth(app);
 
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
+                // Sign in anonymously (Ensure "Anonymous" is enabled in Firebase Authentication console)
+                await signInAnonymously(auth);
 
-                const appId = typeof __app_id !== 'undefined' ? __app_id : 'dark-cloud-spawn-tracker-v2';
-                firebaseDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'records', 'matrix_transposed');
+                // Set Firestore document path
+                firebaseDocRef = doc(db, 'records', 'matrix_transposed');
                 
-                // 訂閱雲端資料即時變更監聽
+                // Realtime synchronization via onSnapshot
                 onSnapshot(firebaseDocRef, (docSnap) => {
                     if (docSnap.exists()) {
                         records = docSnap.data().slots || {};
@@ -383,13 +382,14 @@
                     renderTimeline();
                 }, (error) => {
                     console.error("Firestore loading error: ", error);
-                    showNotification("同步連線失敗，自動切換至備份模式", "error");
+                    showNotification("同步連線失敗，自動切換至本地暫存模式", "error");
+                    initLocalApp();
                 });
 
                 isFirebaseReady = true;
                 badge.className = "text-14pt bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-medium";
                 badge.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-1.5 animate-ping"></span>雲端同步`;
-                showNotification("已成功與雲端大廳同步！", "success");
+                showNotification("已成功與 Firebase 雲端資料庫同步！", "success");
 
             } catch (err) {
                 console.error("Firebase startup failed: ", err);
@@ -399,7 +399,6 @@
             }
         }
 
-        // 本地模式備份初始化
         function initLocalApp() {
             try {
                 const saved = localStorage.getItem(STORAGE_KEY);
