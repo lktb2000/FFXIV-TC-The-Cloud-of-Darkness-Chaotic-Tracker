@@ -102,67 +102,75 @@
             box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.2);
             transition: all 0.2s ease;
         }
-        .btn-boosted-state:hover {
-            opacity: 0.95;
-            transform: scale(1.02);
-        }
 
-        /* 目前所在時段外框樣式 */
+        /* 目前所在時段樣式：金黃色內光暈 */
         .current-slot-highlight {
-            outline: 5px solid var(--color-border-current) !important;
-            outline-offset: -3px;
             z-index: 20;
             position: relative;
-            animation: pulse-glow-current 2s infinite ease-in-out;
+            animation: pulse-glow-current 2s infinite ease-in-out !important;
         }
 
-        /* 最早加倍可能時段外框樣式 */
+        /* 最早加倍可能時段（預測區間）外框樣式：調薄至 3px */
         .earliest-slot-highlight {
-            outline: 5px solid var(--color-border-earliest) !important;
+            outline: 3px solid var(--color-border-earliest) !important;
             outline-offset: -3px;
             z-index: 18;
             position: relative;
             animation: pulse-glow-earliest 2s infinite ease-in-out;
         }
 
-        /* 最晚保底時段外框樣式 */
+        /* 最晚保底時段外框樣式：調薄至 3px */
         .latest-slot-highlight {
-            outline: 5px solid var(--color-border-latest) !important;
+            outline: 3px solid var(--color-border-latest) !important;
             outline-offset: -3px;
             z-index: 18;
             position: relative;
             animation: pulse-glow-latest 2s infinite ease-in-out;
         }
 
+        /* 複合樣式：允許同時顯示金黃色內光暈 + 綠色外框 */
+        .current-slot-highlight.earliest-slot-highlight {
+            animation: pulse-glow-current 2s infinite ease-in-out, pulse-glow-earliest 2s infinite ease-in-out !important;
+        }
+
+        /* 複合樣式：允許同時顯示金黃色內光暈 + 紅色外框 */
+        .current-slot-highlight.latest-slot-highlight {
+            animation: pulse-glow-current 2s infinite ease-in-out, pulse-glow-latest 2s infinite ease-in-out !important;
+        }
+
         @keyframes pulse-glow-current {
-            0%, 100% { outline-color: var(--color-border-current); filter: brightness(1); }
-            50% { outline-color: rgba(255, 255, 255, 0.9); filter: brightness(1.2); }
+            0%, 100% { 
+                box-shadow: inset 0 0 8px 1px var(--color-border-current), inset 0 0 3px rgba(255, 255, 255, 0.2); 
+            }
+            50% { 
+                box-shadow: inset 0 0 20px 6px var(--color-border-current), inset 0 0 8px rgba(255, 255, 255, 0.6); 
+            }
         }
 
         @keyframes pulse-glow-earliest {
-            0%, 100% { outline-color: var(--color-border-earliest); filter: brightness(1); }
-            50% { outline-color: rgba(255, 255, 255, 0.9); filter: brightness(1.2); }
+            0%, 100% { outline-color: var(--color-border-earliest); }
+            50% { outline-color: rgba(255, 255, 255, 0.9); }
         }
 
         @keyframes pulse-glow-latest {
-            0%, 100% { outline-color: var(--color-border-latest); filter: brightness(1); }
-            50% { outline-color: rgba(255, 255, 255, 0.9); filter: brightness(1.2); }
+            0%, 100% { outline-color: var(--color-border-latest); }
+            50% { outline-color: rgba(255, 255, 255, 0.9); }
         }
     </style>
 </head>
 <body class="min-h-screen pb-12 text-center flex flex-col justify-start items-center">
 
     <header class="w-full border-b border-gray-800 bg-gray-950/80 backdrop-blur sticky top-0 z-50 px-4 py-6 sm:px-6 text-center">
-        <div class="max-w-7xl mx-auto flex flex-col items-center justify-center gap-3">
-            <div class="flex flex-col items-center justify-center gap-2">
-                <div class="text-center">
-                    <h1 class="text-24pt font-bold tracking-tight text-white flex flex-wrap justify-center items-center gap-2">
+        <div class="max-w-7xl mx-auto flex flex-col items-center justify-center gap-3 text-center">
+            <div class="flex flex-col items-center justify-center gap-2 text-center w-full">
+                <div class="text-center w-full flex flex-col items-center justify-center">
+                    <h1 class="text-24pt font-bold tracking-tight text-white flex flex-wrap justify-center items-center gap-2 text-center">
                         滅暗黑之雲激鬥戰 
                         <span class="text-14pt bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full font-medium">Ver 1.10</span>
                         <span id="cloud-sync-badge" class="text-14pt bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-medium">載入中...</span>
                     </h1>
-                    <p class="text-14pt text-gray-400 mt-1 text-center">FFXIV Cloud of Darkness Spawn Realtime Sync Tracker</p>
-                    <button id="toggle-past-btn" class="mt-3 px-4 py-1.5 bg-gray-800 hover:bg-gray-750 text-gray-300 border border-gray-700 rounded-lg text-14pt transition">
+                    <p class="text-14pt text-gray-400 mt-1 text-center w-full">FFXIV Cloud of Darkness Spawn Realtime Sync Tracker</p>
+                    <button id="toggle-past-btn" class="mt-3 px-4 py-1.5 bg-gray-800 hover:bg-gray-750 text-gray-300 border border-gray-700 rounded-lg text-14pt transition self-center">
                         顯示過往時段
                     </button>
                 </div>
@@ -170,18 +178,18 @@
         </div>
     </header>
 
-    <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 mt-6 flex flex-col justify-start items-center gap-6">
+    <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 mt-6 flex flex-col justify-start items-center gap-6 text-center">
         
         <!-- Grid: Ensured to display horizontally (cols-3) on desktop/tablets and stacked on mobile -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-7xl mx-auto mb-2 text-center justify-center">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-7xl mx-auto mb-2 text-center justify-center items-stretch">
             <!-- Server Time Card -->
             <div class="bg-gray-900/60 border border-gray-800 rounded-xl p-5 flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
                 <div class="p-3 bg-amber-500/10 rounded-lg text-amber-400 flex items-center justify-center">
                     <span class="material-icons-round text-4xl">schedule</span>
                 </div>
-                <div class="text-center sm:text-left flex flex-col items-center sm:items-start justify-center">
-                    <p class="text-14pt text-gray-400 font-medium text-center sm:text-left">當前伺服器時間</p>
-                    <p id="current-time-display" class="text-18pt font-bold font-mono text-amber-400 mt-1 text-center sm:text-left">Loading...</p>
+                <div class="text-center flex flex-col items-center justify-center">
+                    <p class="text-14pt text-gray-400 font-medium text-center">當前伺服器時間</p>
+                    <p id="current-time-display" class="text-18pt font-bold font-mono text-amber-400 mt-1 text-center">Loading...</p>
                 </div>
             </div>
 
@@ -190,9 +198,9 @@
                 <div class="p-3 bg-emerald-500/10 rounded-lg text-emerald-400 flex items-center justify-center">
                     <span class="material-icons-round text-4xl">timer</span>
                 </div>
-                <div class="text-center sm:text-left flex flex-col items-center sm:items-start justify-center">
-                    <p class="text-14pt text-gray-400 font-medium text-center sm:text-left">下次最早加倍時間 (24h CD)</p>
-                    <p id="earliest-prediction" class="text-18pt font-bold text-emerald-400 font-mono mt-1 text-center sm:text-left">--:--</p>
+                <div class="text-center flex flex-col items-center justify-center">
+                    <p class="text-14pt text-gray-400 font-medium text-center">下次最早加倍時間 (24h CD)</p>
+                    <p id="earliest-prediction" class="text-18pt font-bold text-emerald-400 font-mono mt-1 text-center">--:--</p>
                 </div>
             </div>
 
@@ -201,9 +209,9 @@
                 <div class="p-3 bg-red-500/10 rounded-lg text-red-400 flex items-center justify-center">
                     <span class="material-icons-round text-4xl">gavel</span>
                 </div>
-                <div class="text-center sm:text-left flex flex-col items-center sm:items-start justify-center">
-                    <p class="text-14pt text-gray-400 font-medium text-center sm:text-left">最晚強制加倍時間 (48h)</p>
-                    <p id="latest-prediction" class="text-18pt font-bold text-red-400 font-mono mt-1 text-center sm:text-left">--:--</p>
+                <div class="text-center flex flex-col items-center justify-center">
+                    <p class="text-14pt text-gray-400 font-medium text-center">最晚強制加倍時間 (48h)</p>
+                    <p id="latest-prediction" class="text-18pt font-bold text-red-400 font-mono mt-1 text-center">--:--</p>
                 </div>
             </div>
         </div>
@@ -217,7 +225,7 @@
                 </li>
                 <li class="text-center">
                     <span class="text-purple-400 select-none">•</span>
-                    <span><strong style="color: #7C3AED;">加倍觸發時</strong>，全區同步進入。持續時間可能隨機為 <strong class="text-purple-400">3、6、9、12 小時</strong>。</span>
+                    <span><strong style="color: #7C3AED;">加倍觸發時</strong>，全區同步進入。持續時間可能隨機為 <strong class="text-purple-400" style="color: #7C3AED;">3、6、9、12 小時</strong>。</span>
                 </li>
                 <li class="text-center">
                     <span class="text-gray-200 select-none">•</span>
@@ -225,7 +233,7 @@
                 </li>
                 <li class="text-center">
                     <span class="text-red-400 select-none">•</span>
-                    <span><strong style="color: #EF4444;">48小時強制保底</strong>：距離上次加倍開始經過 48 小時若未觸發，系統將<strong class="text-red-400">強制啟動</strong>加倍。</span>
+                    <span><strong style="color: #EF4444;">48小時強制保底</strong>：距離上次加倍開始經過 48 小時若未觸發，系統將<strong class="text-red-400" style="color: #EF4444;">強制啟動</strong>加倍。</span>
                 </li>
             </ul>
         </div>
@@ -290,7 +298,7 @@
 
                 <!-- 目前時段外框顏色 -->
                 <div class="bg-gray-950/40 p-4 rounded-lg border border-gray-800/80 flex flex-col items-center justify-center gap-2 text-center">
-                    <label for="color-border-current" class="text-14pt text-gray-300 font-medium text-center">目前所在時間段的外框色</label>
+                    <label for="color-border-current" class="text-14pt text-gray-300 font-medium text-center">目前所在時間段的內光暈色</label>
                     <div class="flex items-center justify-center gap-3">
                         <input type="color" id="color-border-current" oninput="updateCustomColors()" class="w-12 h-10 border-0 rounded cursor-pointer bg-transparent">
                         <span id="val-color-border-current" class="font-mono text-gray-400 text-14pt">#FBBF24</span>
@@ -299,7 +307,7 @@
 
                 <!-- 最早加倍時段外框顏色 -->
                 <div class="bg-gray-950/40 p-4 rounded-lg border border-gray-800/80 flex flex-col items-center justify-center gap-2 text-center">
-                    <label for="color-border-earliest" class="text-14pt text-gray-300 font-medium text-center">最早加倍時段的外框色</label>
+                    <label for="color-border-earliest" class="text-14pt text-gray-300 font-medium text-center">預測可能加倍時段的外框色</label>
                     <div class="flex items-center justify-center gap-3">
                         <input type="color" id="color-border-earliest" oninput="updateCustomColors()" class="w-12 h-10 border-0 rounded cursor-pointer bg-transparent">
                         <span id="val-color-border-earliest" class="font-mono text-gray-400 text-14pt">#10B981</span>
@@ -492,11 +500,10 @@
             const dateList = [];
             const daysOfWeek = ["日", "一", "二", "三", "四", "五", "六"];
             
-            // 動態產生 thead 日期標題 (MM/DD (W) 格式)
+            // 產生 columns
             for (let i = -4; i <= 2; i++) {
-                // 如果未開啟顯示過往時段，且屬於今日以前 (i < 0)，則跳過不渲染
                 if (!showPastPeriods && i < 0) {
-                    continue;
+                    continue; // 隱藏今日以前的日期
                 }
 
                 const dayBaseline = new Date(currentBaseline);
@@ -510,12 +517,12 @@
                 const date = String(dayBaseline.getDate()).padStart(2, '0');
                 const dayStr = daysOfWeek[dayBaseline.getDay()];
 
-                // 今日 (relativeIndex === 0) 文字顏色改為 #FBBF24
+                // 今天 (relativeIndex === 0) 顏色改成金黃色 #FBBF24
                 const isToday = (i === 0);
                 const textColorStyle = isToday ? 'style="color: #FBBF24; font-weight: bold;"' : '';
 
                 const th = document.createElement('th');
-                th.className = "py-4 px-3 border-b border-gray-800/80 min-w-[120px]";
+                th.className = "py-4 px-3 border-b border-gray-800/80 min-w-[150px]";
                 th.innerHTML = `
                     <div class="flex flex-col items-center justify-center">
                         <span class="font-semibold whitespace-nowrap text-14pt" ${textColorStyle}>${month}/${date} (${dayStr})</span>
@@ -546,16 +553,16 @@
                     const ts = slotStart.getTime();
                     const isActive = !!records[ts];
                     const isCurrent = isCurrentActiveSlot(ts, now);
-                    const isLatestPredicted = (ts === latestTimestamp);
                     
-                    // 判斷是否處於最早可能與最晚保底預測區間之間（包含兩端）
-                    const isInPredictionRange = (earliestTimestamp !== null && latestTimestamp !== null && ts >= earliestTimestamp && ts <= latestTimestamp);
+                    // 預測範圍判定：介於最早與最晚之間
+                    const isEarliestPredicted = (earliestTimestamp !== null && latestTimestamp !== null && ts >= earliestTimestamp && ts <= latestTimestamp);
+                    const isLatestPredicted = (latestTimestamp !== null && ts === latestTimestamp);
 
                     const td = document.createElement('td');
                     td.className = "p-2";
 
-                    // 按鈕自定義樣式 (套用 ffxiv-btn class 支援高度自訂控制)
-                    let buttonClass = "ffxiv-btn w-full px-3 text-14pt rounded-lg font-mono font-medium flex flex-col items-center justify-center transition duration-150 border border-gray-800/40 shadow-sm whitespace-nowrap ";
+                    // 按鈕自定義樣式 (改為更精準的高度內距控制)
+                    let buttonClass = "w-full text-14pt rounded-lg font-mono font-medium flex flex-col items-center justify-center transition duration-150 border border-gray-800/40 shadow-sm whitespace-nowrap ffxiv-btn ";
                     
                     if (isActive) {
                         buttonClass += "btn-boosted-state";
@@ -563,12 +570,15 @@
                         buttonClass += "btn-normal-state";
                     }
 
-                    // 外框優先權：當前時段 > 最晚保底 > 預測加倍區間
+                    // 1. 金黃色內光暈：現在時段
                     if (isCurrent) {
                         buttonClass += " current-slot-highlight";
-                    } else if (isLatestPredicted) {
+                    } 
+                    
+                    // 2. 外框線：不覆蓋，直接以多重樣式累加（CSS內含多重 animation 處理並存）
+                    if (isLatestPredicted) {
                         buttonClass += " latest-slot-highlight";
-                    } else if (isInPredictionRange) {
+                    } else if (isEarliestPredicted) {
                         buttonClass += " earliest-slot-highlight";
                     }
 
@@ -651,7 +661,7 @@
             latestPrediction.className = "text-18pt font-bold text-red-400 font-mono mt-1";
         }
 
-        // 更新頂部伺服器時鐘 (移除年份前綴)
+        // 更新頂部伺服器時鐘 (精確移除年份)
         window.updateClock = function() {
             const timeDisplay = document.getElementById('current-time-display');
             if (timeDisplay) {
@@ -695,7 +705,7 @@
             applyColors(colors);
         }
 
-        // 即時套用調色盤與按鈕高度至 CSS 變數
+        // 即時套用調色盤與高度數值至 CSS 變數
         window.updateCustomColors = function() {
             const colors = {
                 normal: document.getElementById('color-normal').value,
@@ -733,7 +743,7 @@
             document.getElementById('val-btn-height').textContent = colors.btnHeight + 'px';
         }
 
-        // 恢復預設色彩與按鈕高度
+        // 恢復預設色彩
         window.restoreDefaultColors = function() {
             const defaultColors = {
                 normal: '#1e293b',
