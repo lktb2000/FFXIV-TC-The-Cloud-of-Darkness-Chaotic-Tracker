@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>滅暗黑之雲 - 限時加倍與 CD 計算器 (雲端同步版)</title>
+    <title>滅 黑暗之雲激鬥戰 限時獎勵時段追蹤器</title>
     <!-- Tailwind CSS (Official Play CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts & Icons -->
@@ -160,17 +160,17 @@
 </head>
 <body class="min-h-screen pb-12 text-center flex flex-col justify-start items-center">
 
-    <header class="w-full border-b border-gray-800 bg-gray-950/80 backdrop-blur sticky top-0 z-50 px-4 py-6 sm:px-6 text-center">
+    <header class="w-full border-b border-gray-800 bg-gray-950/80 backdrop-blur sticky top-0 z-50 px-4 py-4 sm:px-6 text-center">
         <div class="max-w-7xl mx-auto flex flex-col items-center justify-center gap-3 text-center">
             <div class="flex flex-col items-center justify-center gap-2 text-center w-full">
                 <div class="text-center w-full flex flex-col items-center justify-center">
                     <h1 class="text-24pt font-bold tracking-tight text-white flex flex-wrap justify-center items-center gap-2 text-center">
-                        滅暗黑之雲激鬥戰 
-                        <span class="text-14pt bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full font-medium">Ver 1.11</span>
+                        滅 黑暗之雲激鬥戰
+                        <span class="text-14pt bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full font-medium">Ver 1.14</span>
                         <span id="cloud-sync-badge" class="text-14pt bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-medium">載入中...</span>
                     </h1>
-                    <p class="text-14pt text-gray-400 mt-1 text-center w-full">FFXIV Cloud of Darkness Spawn Realtime Sync Tracker</p>
-                    <button id="toggle-past-btn" class="mt-3 px-4 py-1.5 bg-gray-800 hover:bg-gray-750 text-gray-300 border border-gray-700 rounded-lg text-14pt transition self-center">
+                    <p class="text-12pt text-gray-400 mt-1 text-center w-full">FFXIV Cloud of Darkness(Chaotic) Limited-time Bonus Sync Tracker</p>
+                    <button id="toggle-past-btn" class="mt-2 px-4 py-1.5 bg-gray-800 hover:bg-gray-750 text-gray-300 border border-gray-700 rounded-lg text-14pt transition self-center">
                         顯示過往時段
                     </button>
                 </div>
@@ -178,13 +178,13 @@
         </div>
     </header>
 
-    <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 mt-6 flex flex-col justify-start items-center gap-6 text-center">
+    <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 mt-6 flex flex-col justify-start items-center gap-4 text-center">
         
         <!-- Grid: Ensured to display horizontally (cols-3) on desktop/tablets and stacked on mobile -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-7xl mx-auto mb-2 text-center justify-center items-stretch">
             <!-- Server Time Card -->
-            <div class="bg-gray-900/60 border border-gray-800 rounded-xl p-5 flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
-                <div class="p-3 bg-amber-500/10 rounded-lg text-amber-400 flex items-center justify-center">
+            <div class="bg-gray-900/60 border border-gray-800 rounded-xl py-2.5 px-4 flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
+                <div class="p-2 bg-amber-500/10 rounded-lg text-amber-400 flex items-center justify-center">
                     <span class="material-icons-round text-4xl">schedule</span>
                 </div>
                 <div class="text-center flex flex-col items-center justify-center">
@@ -194,51 +194,59 @@
             </div>
 
             <!-- Earliest Spawn Predictor (24h CD) -->
-            <div class="bg-gray-900/60 border border-gray-800 rounded-xl p-5 flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
-                <div class="p-3 bg-emerald-500/10 rounded-lg text-emerald-400 flex items-center justify-center">
+            <div class="bg-gray-900/60 border border-gray-800 rounded-xl py-2.5 px-4 flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
+                <div class="p-2 bg-emerald-500/10 rounded-lg text-emerald-400 flex items-center justify-center">
                     <span class="material-icons-round text-4xl">timer</span>
                 </div>
                 <div class="text-center flex flex-col items-center justify-center">
-                    <p class="text-14pt text-gray-400 font-medium text-center">下次最早加倍時間 (24h CD)</p>
+                    <p class="text-14pt text-gray-400 font-medium text-center">下次觸發獎勵時段</p>
                     <p id="earliest-prediction" class="text-18pt font-bold text-emerald-400 font-mono mt-1 text-center">--:--</p>
                 </div>
             </div>
 
             <!-- Hard Limit Spawn Predictor (48h Guaranteed) -->
-            <div class="bg-gray-900/60 border border-gray-800 rounded-xl p-5 flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
-                <div class="p-3 bg-red-500/10 rounded-lg text-red-400 flex items-center justify-center">
+            <div class="bg-gray-900/60 border border-gray-800 rounded-xl py-2.5 px-4 flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
+                <div class="p-2 bg-red-500/10 rounded-lg text-red-400 flex items-center justify-center">
                     <span class="material-icons-round text-4xl">gavel</span>
                 </div>
                 <div class="text-center flex flex-col items-center justify-center">
-                    <p class="text-14pt text-gray-400 font-medium text-center">最晚強制加倍時間 (48h)</p>
+                    <p class="text-14pt text-gray-400 font-medium text-center">強制觸發獎勵時段</p>
                     <p id="latest-prediction" class="text-18pt font-bold text-red-400 font-mono mt-1 text-center">--:--</p>
                 </div>
             </div>
         </div>
 
         <!-- Explanation Block with specific token styles -->
-        <div class="bg-gray-950/60 border border-gray-800 rounded-xl p-6 text-14pt text-gray-400 text-center w-full max-w-4xl mx-auto flex flex-col items-center justify-center">
+        <div class="bg-gray-950/60 border border-gray-800 rounded-xl p-4 text-14pt text-gray-400 text-center w-full max-w-4xl mx-auto flex flex-col items-center justify-center">
             <ul class="list-none space-y-2 inline-block text-center max-w-4xl w-full">
                 <li class="text-center">
                     <span class="text-amber-400 select-none">•</span>
-                    <span><strong class="text-amber-400">即時同步模式</strong>：本工具已啟用雲端資料庫。多人同時打開此網頁時，點選數據將秒級同步更新，不需手動整理！</span>
+                    <span><strong class="text-amber-400">即時同步模式</strong>：本工具已啟用雲端資料庫。多人同時打開此網頁時，點選數據將同步更新。</span>
                 </li>
                 <li class="text-center">
                     <span class="text-purple-400 select-none">•</span>
-                    <span><strong style="color: #7C3AED;">加倍觸發時</strong>，全區同步進入。持續時間可能隨機為 <strong class="text-purple-400" style="color: #7C3AED;">3、6、9、12 小時</strong>。</span>
+                    <span><strong class="text-purple-400">限時獎勵觸發</strong>：全World同步觸發。持續時間隨機為 <strong class="text-purple-400">3、6、9、12 小時</strong>不等。</span>
                 </li>
                 <li class="text-center">
-                    <span class="text-gray-200 select-none">•</span>
-                    <span><strong style="color: #10B981;">24小時冷卻限制</strong>：每次加倍<strong class="text-gray-200">開始</strong>算起 24 小時內，必定不會再度觸發。</span>
+                    <span style="color: #10B981;" class="select-none">•</span>
+                    <span><strong style="color: #10B981;">24小時冷卻限制</strong>：觸發限時獎勵後，以<strong class="text-gray-200">開始時間</strong>算起 <strong style="color: #10B981;">24 小時</strong>內，必定不會再度觸發。</span>
                 </li>
                 <li class="text-center">
-                    <span class="text-red-400 select-none">•</span>
-                    <span><strong style="color: #EF4444;">48小時強制保底</strong>：距離上次加倍開始經過 48 小時若未觸發，系統將<strong class="text-red-400" style="color: #EF4444;">強制啟動</strong>加倍。</span>
+                    <span style="color: #EF4444;" class="select-none">•</span>
+                    <span><strong style="color: #EF4444;">48小時強制保底</strong>：觸發限時獎勵後，以<strong class="text-gray-200">開始時間</strong>算起 <strong style="color: #EF4444;">48 小時</strong>後，<strong class="text-red-400" style="color: #EF4444;">強制觸發</strong>限時獎勵。</span>
                 </li>
             </ul>
+            
+            <!-- 範例樣式說明按鈕組 (橫向並排、無功能、與主題自訂調色器同步) -->
+            <div class="mt-6 flex flex-wrap justify-center gap-3.5 w-full border-t border-gray-800/40 pt-5">
+                <button class="text-14pt rounded-lg font-mono font-medium border border-gray-800/40 shadow-sm whitespace-nowrap ffxiv-btn px-4 cursor-default btn-normal-state current-slot-highlight min-w-[150px]" style="pointer-events: none;">目前時段</button>
+                <button class="text-14pt rounded-lg font-mono font-medium border border-gray-800/40 shadow-sm whitespace-nowrap ffxiv-btn px-4 cursor-default btn-boosted-state min-w-[150px]" style="pointer-events: none;">限時獎勵時段</button>
+                <button class="text-14pt rounded-lg font-mono font-medium border border-gray-800/40 shadow-sm whitespace-nowrap ffxiv-btn px-4 cursor-default btn-normal-state earliest-slot-highlight min-w-[150px]" style="pointer-events: none;">下次觸發時段</button>
+                <button class="text-14pt rounded-lg font-mono font-medium border border-gray-800/40 shadow-sm whitespace-nowrap ffxiv-btn px-4 cursor-default btn-normal-state latest-slot-highlight min-w-[150px]" style="pointer-events: none;">強制觸發時段</button>
+            </div>
         </div>
 
-        <div class="ffxiv-frame w-fit max-w-full mx-auto">
+        <div class="ffxiv-frame w-fit max-w-full mx-auto mt-1">
             <!-- Scrollable Table -->
             <div class="overflow-x-auto custom-scrollbar">
                 <table class="w-auto text-center border-collapse mx-auto">
@@ -254,7 +262,7 @@
             </div>
         </div>
 
-        <section style="display: none;" class="bg-gray-900/50 border border-gray-800 rounded-xl p-6 w-full max-w-5xl mx-auto text-center flex flex-col justify-start items-center">
+        <section class="bg-gray-900/50 border border-gray-800 rounded-xl p-6 w-full max-w-5xl mx-auto text-center flex flex-col justify-start items-center">
             <h3 class="text-18pt font-bold text-gray-200 flex items-center justify-center gap-2 mb-4 text-center">
                 <span class="material-icons-round text-20pt text-amber-500">palette</span>
                 介面色彩調色器 (自訂主題)
@@ -421,7 +429,7 @@
                 isFirebaseReady = true;
                 badge.className = "text-14pt bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-medium";
                 badge.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-1.5 animate-ping"></span>雲端同步`;
-                showNotification("已成功與 Firebase 雲端資料庫同步！", "success");
+                showNotification("已成功與雲端資料庫同步！", "success");
 
             } catch (err) {
                 console.error("Firebase startup failed: ", err);
@@ -502,8 +510,8 @@
             
             // 產生 columns
             for (let i = -4; i <= 2; i++) {
-                if (!showPastPeriods && i < 0) {
-                    continue; // 隱藏今日以前的日期
+                if (!showPastPeriods && i < -1) {
+                    continue; // 隱藏昨日以前的日期 (保留前一天)
                 }
 
                 const dayBaseline = new Date(currentBaseline);
@@ -554,9 +562,10 @@
                     const isActive = !!records[ts];
                     const isCurrent = isCurrentActiveSlot(ts, now);
                     
-                    // 預測範圍判定：介於最早與最晚之間
-                    const isEarliestPredicted = (earliestTimestamp !== null && latestTimestamp !== null && ts >= earliestTimestamp && ts <= latestTimestamp);
-                    const isLatestPredicted = (latestTimestamp !== null && ts === latestTimestamp);
+                    // 預測範圍判定：原預測判定基礎上，限制綠色與紅色特效僅出現在特定 4 個時段 (索引 0, 2, 4, 6)
+                    const allowedGreenIndices = [0, 2, 4, 6];
+                    const isEarliestPredicted = (earliestTimestamp !== null && latestTimestamp !== null && ts >= earliestTimestamp && ts <= latestTimestamp && allowedGreenIndices.includes(slotIdx));
+                    const isLatestPredicted = (latestTimestamp !== null && ts === latestTimestamp && allowedGreenIndices.includes(slotIdx));
 
                     const td = document.createElement('td');
                     td.className = "p-2";
@@ -816,11 +825,34 @@
         // 每秒更新系統時間時鐘
         setInterval(updateClock, 1000);
 
-        // 每5分鐘自動重新計算並更新高亮狀態與計算
+        // 精確時間偵測：每分鐘 0 秒、以及整點過 5 秒時，自動更新高亮狀態與預測計算
+        let lastTriggeredMinute = -1;
+        let lastTriggeredHourPlusFive = -1;
+
         setInterval(() => {
-            updateCalculations();
-            renderTimeline();
-        }, 5 * 60 * 1000);
+            const d = new Date();
+            const mins = d.getMinutes();
+            const secs = d.getSeconds();
+            const hrs = d.getHours();
+
+            let shouldUpdate = false;
+
+            // 1. 每分鐘偵測 (秒數為 0 時)
+            if (secs === 0 && lastTriggeredMinute !== mins) {
+                shouldUpdate = true;
+                lastTriggeredMinute = mins;
+            }
+            // 2. 每個整點過 5 秒偵測 (分=0, 秒=5 時)
+            if (mins === 0 && secs === 5 && lastTriggeredHourPlusFive !== hrs) {
+                shouldUpdate = true;
+                lastTriggeredHourPlusFive = hrs;
+            }
+
+            if (shouldUpdate) {
+                updateCalculations();
+                renderTimeline();
+            }
+        }, 1000);
 
     </script>
 </body>
