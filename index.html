@@ -9,6 +9,7 @@
     <!-- Google Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     
     <style>
         html {
@@ -166,7 +167,7 @@
                 <div class="text-center w-full flex flex-col items-center justify-center">
                     <h1 class="text-24pt font-bold tracking-tight text-white flex flex-wrap justify-center items-center gap-2 text-center">
                         滅 黑暗之雲激鬥戰
-                        <span class="text-14pt bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full font-medium">Ver 1.14</span>
+                        <span class="text-14pt bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full font-medium">Ver 1.15</span>
                         <span id="cloud-sync-badge" class="text-14pt bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-medium">載入中...</span>
                     </h1>
                     <p class="text-12pt text-gray-400 mt-1 text-center w-full">FFXIV Cloud of Darkness(Chaotic) Limited-time Bonus Sync Tracker</p>
@@ -178,7 +179,7 @@
         </div>
     </header>
 
-    <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 mt-6 flex flex-col justify-start items-center gap-4 text-center">
+    <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 mt-4 flex flex-col justify-start items-center gap-2.5 text-center">
         
         <!-- Grid: Ensured to display horizontally (cols-3) on desktop/tablets and stacked on mobile -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-7xl mx-auto mb-2 text-center justify-center items-stretch">
@@ -217,28 +218,28 @@
         </div>
 
         <!-- Explanation Block with specific token styles -->
-        <div class="bg-gray-950/60 border border-gray-800 rounded-xl p-4 text-14pt text-gray-400 text-center w-full max-w-4xl mx-auto flex flex-col items-center justify-center">
+        <div class="bg-gray-900/60 border border-gray-800 rounded-xl p-3.5 text-14pt text-gray-400 text-center w-full max-w-4xl mx-auto flex flex-col items-center justify-center">
             <ul class="list-none space-y-2 inline-block text-center max-w-4xl w-full">
                 <li class="text-center">
                     <span class="text-amber-400 select-none">•</span>
-                    <span><strong class="text-amber-400">即時同步模式</strong>：本工具已啟用雲端資料庫。多人同時打開此網頁時，點選數據將同步更新。</span>
+                    <span><strong class="text-amber-400">即時同步</strong>：本工具已啟用雲端資料庫。多人同時打開此網頁時，點選數據將同步更新。</span>
                 </li>
                 <li class="text-center">
                     <span class="text-purple-400 select-none">•</span>
-                    <span><strong class="text-purple-400">限時獎勵觸發</strong>：全World同步觸發。持續時間隨機為 <strong class="text-purple-400">3、6、9、12 小時</strong>不等。</span>
+                    <span><strong class="text-purple-400">限時獎勵時段</strong>：全 World 同步於 <strong style="color: #10B981;">05:00、11:00、17:00、23:00</strong> 機率觸發。持續時間隨機 <strong class="text-purple-400">3、6、9、12 小時</strong> 不等。</span>
                 </li>
                 <li class="text-center">
                     <span style="color: #10B981;" class="select-none">•</span>
-                    <span><strong style="color: #10B981;">24小時冷卻限制</strong>：觸發限時獎勵後，以<strong class="text-gray-200">開始時間</strong>算起 <strong style="color: #10B981;">24 小時</strong>內，必定不會再度觸發。</span>
+                    <span><strong style="color: #10B981;">24小時冷卻限制</strong>：觸發限時獎勵後，以<strong class="text-gray-200">開始時間</strong>算起 <strong style="color: #10B981;">24 小時</strong> 內，必定不會再度觸發。</span>
                 </li>
                 <li class="text-center">
                     <span style="color: #EF4444;" class="select-none">•</span>
-                    <span><strong style="color: #EF4444;">48小時強制保底</strong>：觸發限時獎勵後，以<strong class="text-gray-200">開始時間</strong>算起 <strong style="color: #EF4444;">48 小時</strong>後，<strong class="text-red-400" style="color: #EF4444;">強制觸發</strong>限時獎勵。</span>
+                    <span><strong style="color: #EF4444;">48小時強制保底</strong>：觸發限時獎勵後，以<strong class="text-gray-200">開始時間</strong>算起 <strong style="color: #EF4444;">48 小時</strong> 後，<strong class="text-red-400" style="color: #EF4444;">強制觸發</strong>限時獎勵。</span>
                 </li>
             </ul>
             
             <!-- 範例樣式說明按鈕組 (橫向並排、無功能、與主題自訂調色器同步) -->
-            <div class="mt-6 flex flex-wrap justify-center gap-3.5 w-full border-t border-gray-800/40 pt-5">
+            <div class="mt-3 flex flex-wrap justify-center gap-3.5 w-full border-t border-gray-800/40 pt-3.5">
                 <button class="text-14pt rounded-lg font-mono font-medium border border-gray-800/40 shadow-sm whitespace-nowrap ffxiv-btn px-4 cursor-default btn-normal-state current-slot-highlight min-w-[150px]" style="pointer-events: none;">目前時段</button>
                 <button class="text-14pt rounded-lg font-mono font-medium border border-gray-800/40 shadow-sm whitespace-nowrap ffxiv-btn px-4 cursor-default btn-boosted-state min-w-[150px]" style="pointer-events: none;">限時獎勵時段</button>
                 <button class="text-14pt rounded-lg font-mono font-medium border border-gray-800/40 shadow-sm whitespace-nowrap ffxiv-btn px-4 cursor-default btn-normal-state earliest-slot-highlight min-w-[150px]" style="pointer-events: none;">下次觸發時段</button>
@@ -262,6 +263,7 @@
             </div>
         </div>
 
+        <!-- 介面色彩調色器 -->
         <section style="display: none;" class="bg-gray-900/50 border border-gray-800 rounded-xl p-6 w-full max-w-5xl mx-auto text-center flex flex-col justify-start items-center">
             <h3 class="text-18pt font-bold text-gray-200 flex items-center justify-center gap-2 mb-4 text-center">
                 <span class="material-icons-round text-20pt text-amber-500">palette</span>
@@ -689,7 +691,7 @@
                 borderLatest: '#ef4444',
                 globalBg: '#0b0f19',
                 frameBg: '#161b2b',
-                btnHeight: '10'
+                btnHeight: '7'
             };
 
             let colors = { ...defaultColors };
@@ -761,8 +763,7 @@
                 borderEarliest: '#10b981',
                 borderLatest: '#ef4444',
                 globalBg: '#0b0f19',
-                frameBg: '#161b2b',
-                btnHeight: '10'
+                frameBg: '#161b2b'
             };
             document.getElementById('color-normal').value = defaultColors.normal;
             document.getElementById('color-boosted').value = defaultColors.boosted;
@@ -771,11 +772,10 @@
             document.getElementById('color-border-latest').value = defaultColors.borderLatest;
             document.getElementById('color-global-bg').value = defaultColors.globalBg;
             document.getElementById('color-frame-bg').value = defaultColors.frameBg;
-            document.getElementById('btn-height').value = defaultColors.btnHeight;
 
             applyColors(defaultColors);
             localStorage.setItem(STORAGE_COLOR_KEY, JSON.stringify(defaultColors));
-            showNotification("已恢復原廠 FFXIV 經典色系與按鈕高度", "success");
+            showNotification("已恢復原廠 FFXIV 經典色系", "success");
         }
 
         window.showNotification = function(text, type = "success") {
@@ -786,7 +786,7 @@
             const bgClass = type === "success" ? "bg-emerald-950/90 border-emerald-500/50 text-emerald-200" : "bg-red-950/90 border-red-500/50 text-red-200";
             const icon = type === "success" ? "check_circle" : "error_outline";
 
-            toast.className = `flex items-center gap-2.5 px-4.5 py-3 border rounded-xl shadow-xl backdrop-blur-sm transition-all duration-300 translate-y-2 opacity-0 ${bgClass}`;
+            toast.className = `flex items-center gap-3 px-6 py-4 border rounded-xl shadow-xl backdrop-blur-sm transition-all duration-300 translate-y-2 opacity-0 ${bgClass}`;
             toast.innerHTML = `
                 <span class="material-icons-round text-18pt">${icon}</span>
                 <span class="text-14pt font-medium">${text}</span>
