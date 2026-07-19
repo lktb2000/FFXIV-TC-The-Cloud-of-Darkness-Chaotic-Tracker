@@ -3,12 +3,12 @@
 <head>
     <!-- Open Graph -->
     <meta property="og:title" content="滅 黑暗之雲激鬥戰 限時獎勵時段追蹤器">
-
     <meta property="og:type" content="website">
     <meta name="twitter:url" content="https://lktb2000.github.io/FFXIV-TC-The-Cloud-of-Darkness-Chaotic-Tracker/">
     <meta property="og:site_name" content="FFXIV 繁體中文版 千鶴艾爾莎/鶴姬神社 自用工具">
     <meta property="og:description" content="手動紀錄限時獎勵時段，即可顯示下次最早及最晚觸發時段，並雲端同步給所有使用者 | FFXIV 繁體中文版 滅 黑暗之雲激鬥戰 限時獎勵時段追蹤器">
     <meta property="og:image" content="https://lktb2000.github.io/FFXIV-TC-The-Cloud-of-Darkness-Chaotic-Tracker/i/og-image_40.png">
+ 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>滅 黑暗之雲激鬥戰 限時獎勵時段追蹤器</title>
@@ -86,7 +86,7 @@
             --color-border-latest: #ef4444;
             --color-global-bg: #0b0f19;
             --color-frame-bg: #161b2b;
-            --btn-padding-y: 10px;
+            --btn-padding-y: 7px;
         }
 
         .ffxiv-btn {
@@ -175,13 +175,18 @@
                 <div class="text-center w-full flex flex-col items-center justify-center">
                     <h1 class="text-24pt font-bold tracking-tight text-white flex flex-wrap justify-center items-center gap-2 text-center">
                         滅 黑暗之雲激鬥戰
-                        <span class="text-14pt bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full font-medium">Ver 1.16</span>
+                        <span class="text-14pt bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full font-medium">Ver 1.21</span>
                         <span id="cloud-sync-badge" class="text-14pt bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-medium">載入中...</span>
                     </h1>
                     <p class="text-12pt text-gray-400 mt-1 text-center w-full">FFXIV Cloud of Darkness(Chaotic) Limited-time Bonus Sync Tracker</p>
-                    <button id="toggle-past-btn" class="mt-2 px-4 py-1.5 bg-gray-800 hover:bg-gray-750 text-gray-300 border border-gray-700 rounded-lg text-14pt transition self-center">
-                        顯示過往時段
-                    </button>
+                    <div class="flex flex-wrap gap-2.5 mt-2 justify-center">
+                        <button id="toggle-past-btn" class="px-4 py-1.5 bg-gray-800 hover:bg-gray-750 text-gray-300 border border-gray-700 rounded-lg text-14pt transition">
+                            顯示過往時段
+                        </button>
+                        <button id="toggle-history-btn" class="px-4 py-1.5 bg-gray-800 hover:bg-gray-750 text-gray-300 border border-gray-700 rounded-lg text-14pt transition">
+                            隱藏歷史紀錄
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -255,6 +260,8 @@
             </div>
         </div>
 
+        <!-- 動態日期按鈕區域 -->
+        <div class="text-16pt font-bold text-amber-400 mt-6 mb-1">● 當前與預測時段</div>
         <div class="ffxiv-frame w-fit max-w-full mx-auto mt-1">
             <!-- Scrollable Table -->
             <div class="overflow-x-auto custom-scrollbar">
@@ -268,6 +275,34 @@
                         <!-- 由 Javascript 依 8 個縱向時間段動態建構 -->
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- 歷史日期紀錄區域 (過往 30 天) -->
+        <div id="history-section-title" class="text-16pt font-bold text-purple-400 mt-8 mb-1">● 歷史日期紀錄 (過往30天)</div>
+        <div id="history-section-content" class="ffxiv-frame w-fit max-w-full mx-auto mt-1 p-6">
+            <div id="history-records-container" class="flex flex-col gap-3 text-left text-14pt text-gray-300">
+                <!-- 由 JavaScript 動態生成歷史清單 -->
+            </div>
+        </div>
+
+        <!-- 往期日期按鈕區域 -->
+        <div style="display: none;">
+            <div class="text-16pt font-bold text-gray-400 mt-8 mb-1">● 往期歷史紀錄 (過往七天)</div>
+            <div class="ffxiv-frame w-fit max-w-full mx-auto mt-1">
+                <!-- Scrollable Table -->
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-auto text-center border-collapse mx-auto">
+                        <thead>
+                            <tr id="past-matrix-thead-tr" class="bg-gray-900/50 border-b border-gray-800 text-14pt font-semibold text-gray-300">
+                                <!-- 日期標題由 JavaScript 動態生成 -->
+                            </tr>
+                        </thead>
+                        <tbody id="past-matrix-tbody" class="divide-y divide-gray-900/60 text-14pt">
+                            <!-- 由 Javascript 依 8 個縱向時間段動態建構 -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -345,8 +380,8 @@
                 <div class="bg-gray-950/40 p-4 rounded-lg border border-gray-800/80 flex flex-col items-center justify-center gap-2 text-center md:col-span-2 lg:col-span-3">
                     <label for="btn-height" class="text-14pt text-gray-300 font-medium text-center">時段按鈕高度調整 (垂直內距)</label>
                     <div class="flex items-center justify-center gap-3 w-full max-w-md">
-                        <input type="range" id="btn-height" min="4" max="24" oninput="updateCustomColors()" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500">
-                        <span id="val-btn-height" class="font-mono text-gray-400 text-14pt min-w-[50px]">10px</span>
+                        <input type="range" id="btn-height" min="4" max="24" value="7" oninput="updateCustomColors()" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500">
+                        <span id="val-btn-height" class="font-mono text-gray-400 text-14pt min-w-[50px]">7px</span>
                     </div>
                 </div>
             </div>
@@ -505,20 +540,24 @@
         window.renderTimeline = function() {
             const theadTr = document.getElementById('matrix-thead-tr');
             const tbody = document.getElementById('matrix-tbody');
+            const pastTheadTr = document.getElementById('past-matrix-thead-tr');
+            const pastTbody = document.getElementById('past-matrix-tbody');
             if (!theadTr || !tbody) return;
 
             // 清空舊內容
             theadTr.innerHTML = '';
             tbody.innerHTML = '';
+            if (pastTheadTr) pastTheadTr.innerHTML = '';
+            if (pastTbody) pastTbody.innerHTML = '';
 
             const now = Date.now();
             const currentBaseline = getGameDayBaseline(now);
+            const daysOfWeek = ["日", "一", "二", "三", "四", "五", "六"];
 
             // 建立 7 個日期行頭資料 (自今天起算 -4 天至 +2 天)
             const dateList = [];
-            const daysOfWeek = ["日", "一", "二", "三", "四", "五", "六"];
             
-            // 產生 columns
+            // 產生主要表格 columns
             for (let i = -4; i <= 2; i++) {
                 if (!showPastPeriods && i < -1) {
                     continue; // 隱藏昨日以前的日期 (保留前一天)
@@ -549,7 +588,7 @@
                 theadTr.appendChild(th);
             }
 
-            // 縱向逐一渲染 8 個時段列 (Row)
+            // 縱向逐一渲染 8 個時段列 (Row) - 主要表格
             SLOT_DEFINITIONS.forEach((slot, slotIdx) => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-900/20 transition duration-150";
@@ -572,7 +611,7 @@
                     const isActive = !!records[ts];
                     const isCurrent = isCurrentActiveSlot(ts, now);
                     
-                    // 預測範圍判定：原預測判定基礎上，限制綠色與紅色特效僅出現在特定 4 個時段 (索引 0, 2, 4, 6)
+                    // 預測範圍判定
                     const allowedGreenIndices = [0, 2, 4, 6];
                     const isEarliestPredicted = (earliestTimestamp !== null && latestTimestamp !== null && ts >= earliestTimestamp && ts <= latestTimestamp && allowedGreenIndices.includes(slotIdx));
                     const isLatestPredicted = (latestTimestamp !== null && ts === latestTimestamp && allowedGreenIndices.includes(slotIdx));
@@ -580,7 +619,10 @@
                     const td = document.createElement('td');
                     td.className = "p-2";
 
-                    // 按鈕自定義樣式 (改為更精準的高度內距控制)
+                    // 判斷是否為前天(-2)或更早的唯讀時段
+                    const isReadOnly = (dayItem.relativeIndex <= -2);
+
+                    // 按鈕自定義樣式
                     let buttonClass = "w-full text-14pt rounded-lg font-mono font-medium flex flex-col items-center justify-center transition duration-150 border border-gray-800/40 shadow-sm whitespace-nowrap ffxiv-btn ";
                     
                     if (isActive) {
@@ -594,15 +636,20 @@
                         buttonClass += " current-slot-highlight";
                     } 
                     
-                    // 2. 外框線：不覆蓋，直接以多重樣式累加（CSS內含多重 animation 處理並存）
+                    // 2. 外框線
                     if (isLatestPredicted) {
                         buttonClass += " latest-slot-highlight";
                     } else if (isEarliestPredicted) {
                         buttonClass += " earliest-slot-highlight";
                     }
 
+                    // 套用唯讀樣式
+                    if (isReadOnly) {
+                        buttonClass += " pointer-events-none cursor-default opacity-75";
+                    }
+
                     td.innerHTML = `
-                        <button id="btn-ts-${ts}" class="${buttonClass}" title="點擊切換加倍紀錄">
+                        <button id="btn-ts-${ts}" class="${buttonClass}" ${isReadOnly ? 'style="pointer-events: none;"' : 'title="點擊切換加倍紀錄"'}>
                             <span>${slot.label}</span>
                         </button>
                     `;
@@ -612,8 +659,11 @@
 
                 tbody.appendChild(tr);
 
-                // 在渲染完後重新綁定事件
+                // 綁定事件
                 dateList.forEach(dayItem => {
+                    const isReadOnly = (dayItem.relativeIndex <= -2);
+                    if (isReadOnly) return; // 唯讀時段不綁定點擊事件
+
                     const slotStart = new Date(dayItem.baseline);
                     if (slotIdx === 6 && slot.startHour === 23) {}
                     else if (slot.dayOffset > 0) { slotStart.setDate(dayItem.baseline.getDate() + slot.dayOffset); }
@@ -625,6 +675,230 @@
                         btn.onclick = () => toggleSlot(ts);
                     }
                 });
+            });
+
+            if (pastTheadTr && pastTbody) {
+                const pastDateList = [];
+                
+                // 產生過往 7 天表格 columns (-7 至 -1)
+                for (let i = -7; i <= -1; i++) {
+                    const dayBaseline = new Date(currentBaseline);
+                    dayBaseline.setDate(currentBaseline.getDate() + i);
+                    pastDateList.push({
+                        baseline: dayBaseline,
+                        relativeIndex: i
+                    });
+
+                    const month = String(dayBaseline.getMonth() + 1).padStart(2, '0');
+                    const date = String(dayBaseline.getDate()).padStart(2, '0');
+                    const dayStr = daysOfWeek[dayBaseline.getDay()];
+
+                    const th = document.createElement('th');
+                    th.className = "py-4 px-3 border-b border-gray-800/80 min-w-[150px]";
+                    th.innerHTML = `
+                        <div class="flex flex-col items-center justify-center">
+                            <span class="font-semibold whitespace-nowrap text-14pt">${month}/${date} (${dayStr})</span>
+                        </div>
+                    `;
+                    pastTheadTr.appendChild(th);
+                }
+
+                // 縱向逐一渲染 8 個時段列 (Row) - 往期表格
+                SLOT_DEFINITIONS.forEach((slot, slotIdx) => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-gray-900/20 transition duration-150";
+
+                    // 橫向渲染各個日期的按鈕 (Column)
+                    pastDateList.forEach(dayItem => {
+                        const slotStart = new Date(dayItem.baseline);
+                        
+                        // 根據 offset 計算每個格子正確的絕對時間戳
+                        if (slotIdx === 6 && slot.startHour === 23) {
+                            // 當天 23:00 開始
+                        } else if (slot.dayOffset > 0) {
+                            slotStart.setDate(dayItem.baseline.getDate() + slot.dayOffset);
+                        } else if (slot.startHour < 5) {
+                            slotStart.setDate(dayItem.baseline.getDate() + 1);
+                        }
+                        slotStart.setHours(slot.startHour, 0, 0, 0);
+
+                        const ts = slotStart.getTime();
+                        const isActive = !!records[ts];
+                        const isCurrent = isCurrentActiveSlot(ts, now);
+                        
+                        // 預測範圍判定
+                        const allowedGreenIndices = [0, 2, 4, 6];
+                        const isEarliestPredicted = (earliestTimestamp !== null && latestTimestamp !== null && ts >= earliestTimestamp && ts <= latestTimestamp && allowedGreenIndices.includes(slotIdx));
+                        const isLatestPredicted = (latestTimestamp !== null && ts === latestTimestamp && allowedGreenIndices.includes(slotIdx));
+
+                        const td = document.createElement('td');
+                        td.className = "p-2";
+
+                        // 按鈕自定義樣式 (更名 ID 避免與主表重複)
+                        let buttonClass = "w-full text-14pt rounded-lg font-mono font-medium flex flex-col items-center justify-center transition duration-150 border border-gray-800/40 shadow-sm whitespace-nowrap ffxiv-btn ";
+                        
+                        if (isActive) {
+                            buttonClass += "btn-boosted-state";
+                        } else {
+                            buttonClass += "btn-normal-state";
+                        }
+
+                        // 1. 金黃色內光暈：現在時段
+                        if (isCurrent) {
+                            buttonClass += " current-slot-highlight";
+                        } 
+                        
+                        // 2. 外框線
+                        if (isLatestPredicted) {
+                            buttonClass += " latest-slot-highlight";
+                        } else if (isEarliestPredicted) {
+                            buttonClass += " earliest-slot-highlight";
+                        }
+
+                        td.innerHTML = `
+                            <button id="btn-past-ts-${ts}" class="${buttonClass}" title="點擊切換加倍紀錄">
+                                <span>${slot.label}</span>
+                            </button>
+                        `;
+                        
+                        tr.appendChild(td);
+                    });
+
+                    pastTbody.appendChild(tr);
+
+                    // 綁定事件 (往期表格點擊一樣會觸發同步)
+                    pastDateList.forEach(dayItem => {
+                        const slotStart = new Date(dayItem.baseline);
+                        if (slotIdx === 6 && slot.startHour === 23) {}
+                        else if (slot.dayOffset > 0) { slotStart.setDate(dayItem.baseline.getDate() + slot.dayOffset); }
+                        else if (slot.startHour < 5) { slotStart.setDate(dayItem.baseline.getDate() + 1); }
+                        slotStart.setHours(slot.startHour, 0, 0, 0);
+                        const ts = slotStart.getTime();
+                        const btn = document.getElementById(`btn-past-ts-${ts}`);
+                        if (btn) {
+                            btn.onclick = () => toggleSlot(ts);
+                        }
+                    });
+                });
+            }
+
+            // 呼叫渲染歷史紀錄函數
+            renderHistoryRecords();
+        }
+
+        // 新增：渲染歷史紀錄過往30天區間函數
+        function renderHistoryRecords() {
+            const container = document.getElementById('history-records-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const now = Date.now();
+            const currentBaseline = getGameDayBaseline(now);
+            // 30 天前
+            const limitMs = currentBaseline.getTime() - 30 * 24 * 3600 * 1000;
+
+            const activeTss = Object.keys(records)
+                .filter(k => records[k])
+                .map(Number)
+                .sort((a, b) => a - b);
+
+            const intervals = [];
+            if (activeTss.length > 0) {
+                let currentInterval = {
+                    start: activeTss[0],
+                    end: activeTss[0] + 3 * 3600 * 1000
+                };
+
+                for (let i = 1; i < activeTss.length; i++) {
+                    const ts = activeTss[i];
+                    if (ts === currentInterval.end) {
+                        currentInterval.end = ts + 3 * 3600 * 1000;
+                    } else {
+                        intervals.push(currentInterval);
+                        currentInterval = {
+                            start: ts,
+                            end: ts + 3 * 3600 * 1000
+                        };
+                    }
+                }
+                intervals.push(currentInterval);
+            }
+
+            // 計算與篩選過往 30 天內（且不超過現在）的區間
+            const formattedIntervals = [];
+            for (let i = 0; i < intervals.length; i++) {
+                const interval = intervals[i];
+                
+                // 僅紀錄 30 天內且不高於當前時間的區間
+                if (interval.start < limitMs || interval.start > now) {
+                    continue;
+                }
+
+                const startDate = new Date(interval.start);
+                const endDate = new Date(interval.end);
+                const daysOfWeek = ["日", "一", "二", "三", "四", "五", "六"];
+                const w = daysOfWeek[startDate.getDay()];
+                const mm = String(startDate.getMonth() + 1).padStart(2, '0');
+                const dd = String(startDate.getDate()).padStart(2, '0');
+                const aa = String(startDate.getHours()).padStart(2, '0');
+                
+                // bb 為當日最晚時段結束前 1 分鐘（將整點 08:00 化為 07:59）
+                const bb = String(new Date(interval.end - 60000).getHours()).padStart(2, '0');
+                const x = (interval.end - interval.start) / (3600 * 1000);
+
+                let y = "--";
+                if (i > 0) {
+                    y = Math.round((interval.start - intervals[i-1].start) / (3600 * 1000));
+                }
+
+                formattedIntervals.push({
+                    start: interval.start,
+                    displayDate: `${mm}/${dd} (${w})`,
+                    timeRange: `${aa}:00 ~ ${bb}:59`,
+                    duration: x,
+                    interval: y
+                });
+            }
+
+            // 由新到舊排序
+            formattedIntervals.sort((a, b) => b.start - a.start);
+
+            if (formattedIntervals.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center text-gray-500 py-6">過往 30 天內無加倍紀錄</div>`;
+                return;
+            }
+
+            formattedIntervals.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "bg-gray-950/70 border border-purple-500/20 hover:border-purple-500/40 rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-start transition duration-150 shadow-md gap-x-4 gap-y-2";
+                
+                // 判斷觸發間隔顏色：若是 48 小時，則套用與最晚保底時段外框色一樣的紅色
+                let intervalColorClass = "text-gray-500 font-mono";
+                let intervalText = "--";
+                if (item.interval !== "--") {
+                    intervalText = `${item.interval} 小時`;
+                    if (item.interval === 48) {
+                        // 套用與最晚保底外框色一致的紅色
+                        intervalColorClass = "font-bold font-mono text-[var(--color-border-latest,#ef4444)]";
+                    } else {
+                        intervalColorClass = "text-amber-400 font-semibold font-mono";
+                    }
+                }
+
+                div.innerHTML = `
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-bold text-purple-300 text-16pt">${item.displayDate}</span>
+                        <span class="font-mono text-gray-300 text-14pt bg-gray-900 border border-gray-800 px-2 py-0.5 rounded">${item.timeRange}</span>
+                    </div>
+                    <div class="flex items-center gap-4 text-12pt flex-wrap">
+                        <span class="bg-purple-500/10 text-purple-400 border border-purple-500/25 px-2.5 py-0.5 rounded-full font-semibold whitespace-nowrap">持續 ${item.duration} 小時</span>
+                        <div class="flex items-center gap-1 text-gray-400">
+                            <span class="flex items-center gap-1"><span class="material-icons-round text-14pt text-amber-500/80">timer</span>觸發間隔:</span>
+                            <span class="${intervalColorClass}">${intervalText}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
             });
         }
 
@@ -771,7 +1045,8 @@
                 borderEarliest: '#10b981',
                 borderLatest: '#ef4444',
                 globalBg: '#0b0f19',
-                frameBg: '#161b2b'
+                frameBg: '#161b2b',
+                btnHeight: '7'
             };
             document.getElementById('color-normal').value = defaultColors.normal;
             document.getElementById('color-boosted').value = defaultColors.boosted;
@@ -780,6 +1055,7 @@
             document.getElementById('color-border-latest').value = defaultColors.borderLatest;
             document.getElementById('color-global-bg').value = defaultColors.globalBg;
             document.getElementById('color-frame-bg').value = defaultColors.frameBg;
+            document.getElementById('btn-height').value = defaultColors.btnHeight;
 
             applyColors(defaultColors);
             localStorage.setItem(STORAGE_COLOR_KEY, JSON.stringify(defaultColors));
@@ -827,6 +1103,25 @@
                 showPastPeriods = !showPastPeriods;
                 togglePastBtn.textContent = showPastPeriods ? "隱藏過往時段" : "顯示過往時段";
                 renderTimeline();
+            };
+        }
+
+        let showHistory = true;
+        const toggleHistoryBtn = document.getElementById('toggle-history-btn');
+        const historyTitle = document.getElementById('history-section-title');
+        const historyContent = document.getElementById('history-section-content');
+        if (toggleHistoryBtn && historyTitle && historyContent) {
+            toggleHistoryBtn.onclick = () => {
+                showHistory = !showHistory;
+                if (showHistory) {
+                    historyTitle.style.display = '';
+                    historyContent.style.display = '';
+                    toggleHistoryBtn.textContent = "隱藏歷史紀錄";
+                } else {
+                    historyTitle.style.display = 'none';
+                    historyContent.style.display = 'none';
+                    toggleHistoryBtn.textContent = "顯示歷史紀錄";
+                }
             };
         }
 
