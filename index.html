@@ -175,7 +175,7 @@
                 <div class="text-center w-full flex flex-col items-center justify-center">
                     <h1 class="text-24pt font-bold tracking-tight text-white flex flex-wrap justify-center items-center gap-2 text-center">
                         滅 黑暗之雲激鬥戰
-                        <span class="text-14pt bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full font-medium">Ver 1.21</span>
+                        <span class="text-14pt bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full font-medium">Ver 1.22</span>
                         <span id="cloud-sync-badge" class="text-14pt bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-medium">載入中...</span>
                     </h1>
                     <p class="text-12pt text-gray-400 mt-1 text-center w-full">FFXIV Cloud of Darkness(Chaotic) Limited-time Bonus Sync Tracker</p>
@@ -261,7 +261,6 @@
         </div>
 
         <!-- 動態日期按鈕區域 -->
-        <div class="text-16pt font-bold text-amber-400 mt-6 mb-1">● 當前與預測時段</div>
         <div class="ffxiv-frame w-fit max-w-full mx-auto mt-1">
             <!-- Scrollable Table -->
             <div class="overflow-x-auto custom-scrollbar">
@@ -279,7 +278,7 @@
         </div>
 
         <!-- 歷史日期紀錄區域 (過往 30 天) -->
-        <div id="history-section-title" class="text-16pt font-bold text-purple-400 mt-8 mb-1">● 歷史日期紀錄 (過往30天)</div>
+        <div id="history-section-title" class="text-16pt font-bold text-purple-400 mt-8 mb-1">● 限時獎勵 歷史紀錄 (過往30天)</div>
         <div id="history-section-content" class="ffxiv-frame w-fit max-w-full mx-auto mt-1 p-6">
             <div id="history-records-container" class="flex flex-col gap-3 text-left text-14pt text-gray-300">
                 <!-- 由 JavaScript 動態生成歷史清單 -->
@@ -864,7 +863,7 @@
             formattedIntervals.sort((a, b) => b.start - a.start);
 
             if (formattedIntervals.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center text-gray-500 py-6">過往 30 天內無加倍紀錄</div>`;
+                container.innerHTML = `<div class="col-span-full text-center text-gray-500 py-6">過往 30 天內無紀錄</div>`;
                 return;
             }
 
@@ -893,7 +892,7 @@
                     <div class="flex items-center gap-4 text-12pt flex-wrap">
                         <span class="bg-purple-500/10 text-purple-400 border border-purple-500/25 px-2.5 py-0.5 rounded-full font-semibold whitespace-nowrap">持續 ${item.duration} 小時</span>
                         <div class="flex items-center gap-1 text-gray-400">
-                            <span class="flex items-center gap-1"><span class="material-icons-round text-14pt text-amber-500/80">timer</span>觸發間隔:</span>
+                            <span class="flex items-center gap-1"><span class="material-icons-round text-14pt text-amber-500/80">timer</span>觸發間隔：</span>
                             <span class="${intervalColorClass}">${intervalText}</span>
                         </div>
                     </div>
